@@ -1,0 +1,13 @@
+[package]
+name = "juk-led"
+description = "A simple RGB LED controller, which allows for setting a color."
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+esp-hal = { version = "~1.0", default-features = false, features = ["defmt", "requires-unstable"] }
+defmt = "1.0.1"

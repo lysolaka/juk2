@@ -1,3 +1,5 @@
+//! The [`Interface`] struct implementation.
+
 use alloc::vec::Vec;
 use core::mem;
 
@@ -7,12 +9,35 @@ use crate::{
     terminal::Terminal,
 };
 
+/// The operating mode of [`Interface`].
+///
+/// Used to track state of the [`Interface`] state machine.
 #[derive(Clone, Copy, PartialEq, Eq)]
 enum InterfaceMode {
     Binary,
     Text,
 }
 
+/// The main REPL + binary interface struct.
+///
+/// This structure behaves like a state machine with two states:
+/// - Text
+/// - Binary
+///
+/// In the text state, the behaviour is identical to a REPL interface, but note that you have to
+/// print the prompt (usually a `$ ` or `> `) yourself.
+///
+/// In the binary state, the interface reads COBS encoded messages, with the sentinel byte `0x00`.
+///
+/// Switching between these mode is as follows:
+/// - Text -> Binary: press CTRL + SPACE twice (send `0x00` twice)
+/// - Binary -> Text: send `0x00` twice in a row (more accurately: send `0x00` when the binary
+/// input buffer is empty)
+///
+/// The output of this state machine is a variant of the [`Input`] enum denoting what has been
+/// recieved on the interface allowing the user to take appropriate action.
+///
+/// To use this struct's functionality, a type implementing the [`Terminal`] trait is required.
 pub struct Interface {
     mode: InterfaceMode,
     parser: EventParser,
@@ -20,6 +45,7 @@ pub struct Interface {
 }
 
 impl Interface {
+    /// Construct a new interface parser.
     pub fn new() -> Self {
         Self {
             mode: InterfaceMode::Text,
@@ -28,6 +54,11 @@ impl Interface {
         }
     }
 
+    /// Wait for an input event.
+    ///
+    /// The parser does not do any work, when this function is not running. The function will return
+    /// an error, if the [`Terminal`] instance runs into an error. All other actions performed by
+    /// this function and this parser are infallible.
     pub async fn get_input<T: Terminal>(&mut self, terminal: &mut T) -> Result<Input, T::Error> {
         loop {
             let byte = terminal.read_byte().await?;
@@ -40,6 +71,7 @@ impl Interface {
         }
     }
 
+    /// Dispatch a byte in the binary state.
     #[inline]
     async fn binary_dispatch<T: Terminal>(
         &mut self,
@@ -64,6 +96,7 @@ impl Interface {
         }
     }
 
+    /// Dispatch a byte in the text state.
     #[inline]
     async fn text_dispatch<T: Terminal>(
         &mut self,
@@ -92,6 +125,7 @@ impl Interface {
         }
     }
 
+    /// Perform the action associated with `event`.
     #[inline]
     async fn run_event<T: Terminal>(
         &mut self,
@@ -134,6 +168,7 @@ impl Interface {
         }
     }
 
+    /// Helper for [`Self::run_event()`] to avoid excessive indentation.
     #[inline]
     async fn run_key_event<T: Terminal>(
         &mut self,

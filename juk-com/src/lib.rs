@@ -11,6 +11,8 @@ mod eventparser;
 mod interface;
 mod terminal;
 
+pub mod linebuffer;
+
 use alloc::{string::String, vec::Vec};
 
 /// An enum representing input events fired by [`Interface`].

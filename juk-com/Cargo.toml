@@ -10,6 +10,7 @@ rust-version.workspace = true
 
 [dependencies]
 esp-hal = { version = "~1.0", default-features = false, features = ["defmt", "requires-unstable"] }
+str_indices = { version = "0.4.4", default-features = false }
 vte = { version = "0.15.0", default-features = false }
 
 defmt = "1.0.1"

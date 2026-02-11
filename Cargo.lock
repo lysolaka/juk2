@@ -1034,6 +1034,7 @@ dependencies = [
  "esp-hal",
  "esp-println",
  "esp-rtos",
+ "juk-com",
  "static_cell",
 ]
 

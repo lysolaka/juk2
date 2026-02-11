@@ -15,6 +15,7 @@ use esp_hal::{
     uart::{Config, DataBits, Parity, StopBits, Uart},
 };
 use esp_println as _;
+use juk_com::{Input, Interface, Terminal};
 
 esp_bootloader_esp_idf::esp_app_desc!();
 
@@ -42,27 +43,39 @@ async fn main(spawner: Spawner) -> ! {
         "Failed to initialize the UART interface"
     )
     .into_async();
-    let mut buf = [0; 128];
 
+    let mut interface = Interface::new();
+
+    defmt::expect!(
+        <Uart<esp_hal::Async> as Terminal>::write(&mut uart, b"Welcome to JUK2\r\n$ ").await,
+        "UART write failed"
+    );
     loop {
-        match uart.read_async(&mut buf).await {
-            Ok(0) => defmt::panic!("UART read returned 0"),
-            Ok(read) => {
-                defmt::info!("UART in: {=[u8]:02x}", &buf[..read]);
-                let mut count = 0;
-                while count != read {
-                    match uart.write_async(&buf[count..read]).await {
-                        Ok(written) => count += written,
-                        Err(e) => {
-                            defmt::error!("UART error: {}", e);
-                            defmt::panic!("Bye, bye!");
-                        }
-                    }
+        match interface.get_input(&mut uart).await {
+            Ok(input) => match input {
+                Input::Binary(items) => defmt::info!("Binary input: {=[u8]}", &items[..]),
+                Input::Text(text) => {
+                    defmt::info!("Text input: {}", text.as_str());
+                    defmt::expect!(
+                        <Uart<esp_hal::Async> as Terminal>::write(&mut uart, b"$ ").await,
+                        "UART write failed"
+                    );
                 }
-            }
+                Input::EndOfTransmission => {
+                    defmt::info!("CTRL + D: resetting...");
+                    esp_hal::system::software_reset();
+                }
+                _ => {
+                    defmt::expect!(
+                        <Uart<esp_hal::Async> as Terminal>::write(&mut uart, b"$ ").await,
+                        "UART write failed"
+                    );
+                    defmt::expect!(interface.redraw_line(&mut uart).await, "UART write failed");
+                }
+            },
             Err(e) => {
-                defmt::error!("UART error: {}", e);
-                defmt::panic!("Bye, bye!");
+                defmt::error!("UART Error: {}", e);
+                defmt::panic!();
             }
         }
     }

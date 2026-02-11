@@ -48,6 +48,22 @@ pub trait Terminal {
         // default to 0
         self.write(b"\x1b[0K").await
     }
+
+    /// Save the terminal cursor's position.
+    ///
+    /// The default implementation uses an ANSI escape sequence `<ESC>[s`. An implementation could
+    /// call a platform API instead.
+    async fn save_cursor_pos(&mut self) -> Result<(), Self::Error> {
+        self.write(b"\x1b[s").await
+    }
+
+    /// Restore the terminal cursor's position.
+    ///
+    /// The default implementation uses an ANSI escape sequence `<ESC>[u`. An implementation could
+    /// call a platform API instead.
+    async fn restore_cursor_pos(&mut self) -> Result<(), Self::Error> {
+        self.write(b"\x1b[u").await
+    }
 }
 
 impl<'d> Terminal for Uart<'d, esp_hal::Async> {

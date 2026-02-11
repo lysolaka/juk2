@@ -264,13 +264,28 @@ impl Interface {
 
     /// Redraw the line content from the cursor to the end of the line.
     async fn redraw_from_cursor<T: Terminal>(&self, terminal: &mut T) -> Result<(), T::Error> {
-        todo!()
+        terminal.clear_eol().await?;
+
+        let cursor_pos = self.line.cursor_pos();
+        terminal.save_cursor_pos().await?;
+        let remaining = &self.line.as_str()[cursor_pos..];
+        terminal.write(remaining.as_bytes()).await?;
+        terminal.restore_cursor_pos().await?;
+        Ok(())
     }
 
     /// Redraw the entire line content.
     ///
     /// Assumes that the cursor is at an empty prompt.
     pub async fn redraw_line<T: Terminal>(&self, terminal: &mut T) -> Result<(), T::Error> {
-        todo!()
+        terminal.save_cursor_pos().await?;
+        terminal.write(self.line.as_str().as_bytes()).await?;
+        terminal.restore_cursor_pos().await?;
+        // synchronise the cursor position with the buffer
+        let count = self.line.cursor_char_pos();
+        for _ in 0..count {
+            terminal.cursor_right().await?;
+        }
+        Ok(())
     }
 }

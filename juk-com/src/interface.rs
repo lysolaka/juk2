@@ -7,6 +7,7 @@ use crate::{
     Input,
     Terminal,
     eventparser::{Event, EventParser, Key},
+    linebuffer::LineBuffer,
 };
 
 /// The operating mode of [`Interface`].
@@ -41,6 +42,7 @@ enum InterfaceMode {
 pub struct Interface {
     mode: InterfaceMode,
     parser: EventParser,
+    line: LineBuffer,
     binary_buf: Vec<u8>,
 }
 
@@ -50,6 +52,7 @@ impl Interface {
         Self {
             mode: InterfaceMode::Text,
             parser: EventParser::new(),
+            line: LineBuffer::new(),
             binary_buf: Vec::with_capacity(128),
         }
     }
@@ -133,31 +136,52 @@ impl Interface {
         terminal: &mut T,
     ) -> Result<Option<Input>, T::Error> {
         match event {
-            Event::Print(c) => todo!(),
+            Event::Print(c) => {
+                self.line.insert_char(c);
+                let mut b = [0; 4];
+                let s = c.encode_utf8(&mut b);
+                terminal.write(s.as_bytes()).await?;
+                self.redraw_from_cursor(terminal).await?;
+                Ok(None)
+            }
             Event::Execute(b) => match b {
                 // CTRL + SPACE (NUL)
                 0x00 => {
-                    todo!()
+                    // the actual stuff is handled by the eventparser
+                    terminal.write(b"^@").await?;
+                    Ok(None)
                 }
                 // CTRL + C (ETX)
                 0x03 => {
-                    todo!()
+                    terminal.write(b"^C\r\n").await?;
+                    self.line.clear();
+                    Ok(Some(Input::EndOfText))
                 }
                 // CTRL + D (EOT)
                 0x04 => {
-                    todo!()
+                    if self.line.is_empty() {
+                        terminal.write(b"^D\r\n").await?;
+                        Ok(Some(Input::EndOfTransmission))
+                    } else {
+                        Ok(None)
+                    }
                 }
                 // CTRL + G (BEL)
                 0x07 => {
-                    todo!()
+                    terminal.write(b"^G\r\n").await?;
+                    Ok(Some(Input::Bell))
                 }
                 // CTRL + M (CR) [ENTER]
                 0x0d => {
-                    todo!()
+                    terminal.write(b"\r\n").await?;
+                    let text = self.line.take();
+                    self.line.clear();
+                    Ok(Some(Input::Text(text)))
                 }
                 // CTRL + X (CAN)
                 0x18 => {
-                    todo!()
+                    terminal.write(b"^X\r\n").await?;
+                    Ok(Some(Input::Cancel))
                 }
                 _ => Ok(None),
             },
@@ -176,18 +200,77 @@ impl Interface {
         terminal: &mut T,
     ) -> Result<(), T::Error> {
         match key {
-            Key::ArrowUp => todo!(),
-            Key::ArrowDown => todo!(),
-            Key::ArrowRight => todo!(),
-            Key::ArrowLeft => todo!(),
-            Key::Home => todo!(),
-            Key::End => todo!(),
-            Key::Backspace => todo!(),
-            Key::Delete => todo!(),
-            Key::CtrlBackspace => todo!(),
-            Key::CtrlDelete => todo!(),
-            Key::CtrlRight => todo!(),
-            Key::CtrlLeft => todo!(),
+            Key::ArrowUp => (),   // TODO
+            Key::ArrowDown => (), // TODO
+            Key::ArrowRight => {
+                if self.line.move_cursor_right() {
+                    terminal.cursor_right().await?;
+                }
+            }
+            Key::ArrowLeft => {
+                if self.line.move_cursor_left() {
+                    terminal.cursor_left().await?;
+                }
+            }
+            Key::Home => {
+                let count = self.line.move_cursor_to_start();
+                for _ in 0..count {
+                    terminal.cursor_left().await?;
+                }
+            }
+            Key::End => {
+                let count = self.line.move_cursor_to_end();
+                for _ in 0..count {
+                    terminal.cursor_right().await?;
+                }
+            }
+            Key::Backspace => {
+                if self.line.delete_before_cursor() {
+                    terminal.cursor_left().await?;
+                    self.redraw_from_cursor(terminal).await?;
+                }
+            }
+            Key::Delete => {
+                if self.line.delete_at_cursor() {
+                    self.redraw_from_cursor(terminal).await?;
+                }
+            }
+            Key::CtrlBackspace => {
+                let count = self.line.delete_word_left();
+                for _ in 0..count {
+                    terminal.cursor_left().await?;
+                }
+                self.redraw_from_cursor(terminal).await?;
+            }
+            Key::CtrlDelete => {
+                self.line.delete_word_right();
+                self.redraw_from_cursor(terminal).await?;
+            }
+            Key::CtrlRight => {
+                let count = self.line.move_cursor_word_right();
+                for _ in 0..count {
+                    terminal.cursor_right().await?;
+                }
+            }
+            Key::CtrlLeft => {
+                let count = self.line.move_cursor_word_left();
+                for _ in 0..count {
+                    terminal.cursor_left().await?;
+                }
+            }
         }
+        Ok(())
+    }
+
+    /// Redraw the line content from the cursor to the end of the line.
+    async fn redraw_from_cursor<T: Terminal>(&self, terminal: &mut T) -> Result<(), T::Error> {
+        todo!()
+    }
+
+    /// Redraw the entire line content.
+    ///
+    /// Assumes that the cursor is at an empty prompt.
+    pub async fn redraw_line<T: Terminal>(&self, terminal: &mut T) -> Result<(), T::Error> {
+        todo!()
     }
 }

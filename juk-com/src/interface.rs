@@ -87,7 +87,7 @@ impl Interface {
                 // TODO: make this message nicer
                 terminal.write(b"\r\nSwitching to text mode.\r\n").await?;
                 self.mode = InterfaceMode::Text;
-                Ok(None)
+                Ok(Some(Input::EndOfText))
             } else {
                 self.binary_buf.push(byte);
                 let bytes = mem::replace(&mut self.binary_buf, Vec::with_capacity(128));

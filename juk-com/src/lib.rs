@@ -29,7 +29,7 @@ pub enum Input {
     Bell,
     /// CTRL + X was pressed.
     Cancel,
-    /// CTRL + C was pressed, the input buffer was cleared, redraw the prompt.
+    /// CTRL + C was pressed, redraw the prompt and the buffer contents.
     EndOfText,
     /// CTRL + D was pressed.
     EndOfTransmission,

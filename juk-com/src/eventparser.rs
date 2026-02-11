@@ -1,5 +1,24 @@
+//! Utilities related to input parsing using [`vte`].
+
 use vte::{Params, Parser, Perform};
 
+/// An event output from [`vte::Parser`].
+///
+/// This enum represents decoded events from the parser.
+#[derive(defmt::Format, Copy, Clone, PartialEq, Eq)]
+pub enum Event {
+    /// A printable character was recieved.
+    Print(char),
+    /// An ASCII C0 control code was recieved.
+    Execute(u8),
+    /// A particular ANSI escape sequence was recieved.
+    ///
+    /// Note that not all ANSI escape sequences are decoded and returned. For the list of all
+    /// sequences, which can be obtained from the [`EventParser`], see [`Key`].
+    KeyEvent(Key),
+}
+
+/// A key event decoded from an ANSI escape sequence.
 #[derive(defmt::Format, Copy, Clone, PartialEq, Eq)]
 pub enum Key {
     ArrowUp,
@@ -16,19 +35,17 @@ pub enum Key {
     CtrlLeft,
 }
 
-#[derive(defmt::Format, Copy, Clone, PartialEq, Eq)]
-pub enum Event {
-    Print(char),
-    Execute(u8),
-    KeyEvent(Key),
-}
-
+/// A fronted to [`vte::Parser`] providing byte-by-byte operation.
+///
+/// The main method of this struct is [`EventParser::advance`]. Pass bytes to this method, until an
+/// event is fired, after which it's your turn to perform the action.
 pub struct EventParser {
     parser: Parser<4>,
     performer: EventBuf,
 }
 
 impl EventParser {
+    /// Construct a new [`EventParser`].
     pub fn new() -> Self {
         Self {
             parser: Parser::new_with_size(),
@@ -40,16 +57,30 @@ impl EventParser {
         }
     }
 
+    /// Advance the parser with `byte`.
+    ///
+    /// Returns the event fired by that byte if `Some`. `None` means that the parser needs
+    /// additional bytes to produce the next event.
     pub fn advance(&mut self, byte: u8) -> Option<Event> {
         self.parser.advance(&mut self.performer, &[byte]);
 
         self.performer.event.take()
     }
 
+    /// Checks whether the parser had been terminated.
+    ///
+    /// Termination happens after two NUL (`0x00`) bytes are recieved in a row. It could be thought
+    /// of as an additional event. Termination in reality does not stop the parser, it is used to
+    /// detect the interface state change from text mode to binary mode.
+    ///
+    /// When this function returns `true`, it is recommended to immediately call [`EventParser::unterminate`].
     pub fn terminated(&self) -> bool {
         self.performer.terminated
     }
 
+    /// Resets the termination state of the parser.
+    ///
+    /// Reseting allows to listen for another termination "event".
     pub fn unterminate(&mut self) {
         self.performer.terminated = false;
         self.performer.sentinel_seen = false;
@@ -62,6 +93,7 @@ struct EventBuf {
     sentinel_seen: bool,
 }
 
+/// Extract the `index`th parameter of a CSI dispatch ignoring subparameters.
 fn get_param(params: &Params, index: usize) -> u16 {
     params
         .iter()

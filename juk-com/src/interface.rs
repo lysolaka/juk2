@@ -5,8 +5,8 @@ use core::mem;
 
 use crate::{
     Input,
+    Terminal,
     eventparser::{Event, EventParser, Key},
-    terminal::Terminal,
 };
 
 /// The operating mode of [`Interface`].

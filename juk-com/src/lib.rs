@@ -3,11 +3,10 @@
 extern crate alloc;
 
 mod eventparser;
-pub mod terminal;
 mod interface;
+mod terminal;
 
-use alloc::vec::Vec;
-use alloc::string::String;
+use alloc::{string::String, vec::Vec};
 
 pub enum Input {
     Binary(Vec<u8>),
@@ -19,3 +18,4 @@ pub enum Input {
 }
 
 pub use interface::Interface;
+pub use terminal::Terminal;

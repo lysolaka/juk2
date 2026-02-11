@@ -66,7 +66,7 @@ pub struct LEDAdapter<'ch, Dm>
 where
     Dm: DriverMode,
 {
-    channel: Channel<'ch, Dm, Tx>,
+    channel: Option<Channel<'ch, Dm, Tx>>,
     buffer: [PulseCode; 25],
 }
 
@@ -93,7 +93,7 @@ where
         );
 
         Self {
-            channel,
+            channel: Some(channel),
             buffer: [PulseCode::end_marker(); 25],
         }
     }
@@ -102,9 +102,26 @@ where
 impl<'ch> LEDAdapter<'ch, Blocking> {
     pub fn set_color(&mut self, color: &RGB) {
         color.to_pulses(&mut self.buffer);
-        // defmt::debug!("Setting LED color to: {:?}", color);
-        // defmt::trace!("Transmitting: {=[?; 25]}", self.buffer);
-        defmt::unimplemented!("The blocking driver for the LEDAdapter is not yet implemented");
+        defmt::debug!("Setting LED color to: {:?}", color);
+        defmt::trace!("Transmitting: {=[?; 25]}", self.buffer);
+
+        let ch = defmt::expect!(
+            self.channel.take(),
+            "At this point `self.channel` should be `Some`"
+        );
+
+        match ch.transmit(&self.buffer) {
+            Ok(tx) => match tx.wait() {
+                Ok(ch) => self.channel = Some(ch),
+                Err((e, ch)) => {
+                    defmt::warn!("LED color not set: {}", e);
+                    self.channel = Some(ch);
+                }
+            },
+            Err(_) => {
+                defmt::unreachable!("`self.buffer` is always a valid input to `ch.transmit()`")
+            }
+        }
     }
 }
 
@@ -113,7 +130,13 @@ impl<'ch> LEDAdapter<'ch, Async> {
         color.to_pulses(&mut self.buffer);
         defmt::debug!("Setting LED color to: {:?}", color);
         defmt::trace!("Transmitting: {=[?; 25]}", self.buffer);
-        if let Err(e) = self.channel.transmit(&self.buffer).await {
+
+        let ch = defmt::expect!(
+            self.channel.as_mut(),
+            "We never leave this value as `None` in the async adapter"
+        );
+
+        if let Err(e) = ch.transmit(&self.buffer).await {
             defmt::warn!("LED color not set: {}", e);
         }
     }

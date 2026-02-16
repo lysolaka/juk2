@@ -11,6 +11,12 @@ use crate::{
     linebuffer::LineBuffer,
 };
 
+/// The message to display when switching to text mode.
+const MOTD_TEXT: &'static str = "\r\n\x1b[1;32m*\x1b[0m Switching to text mode\r\n";
+
+/// The message to display when switching to binary mode.
+const MOTD_BINARY: &'static str = "\r\n\x1b[1;32m*\x1b[0m Switching to binary mode\r\n\x1b[1;32m*\x1b[0m Press \x1b[1;37mCTRL + Space\x1b[0m once or twice to leave\r\n";
+
 /// The operating mode of [`Interface`].
 ///
 /// Used to track state of the [`Interface`] state machine.
@@ -87,8 +93,7 @@ impl Interface {
         if byte == 0x00 {
             if self.binary_buf.is_empty() {
                 defmt::debug!("Binary mode got an empty frame, switching input mode to text");
-                // TODO: make this message nicer
-                terminal.write(b"\r\nSwitching to text mode.\r\n").await?;
+                terminal.write(MOTD_TEXT.as_bytes()).await?;
                 self.mode = InterfaceMode::Text;
                 Ok(Some(Input::EndOfText))
             } else {
@@ -115,12 +120,7 @@ impl Interface {
 
             if self.parser.terminated() {
                 defmt::debug!("Text mode parser terminated, switching input mode to binary");
-                // TODO: make this message nicer
-                terminal
-                    .write(
-                        b"\r\nSwitching to binary mode.\r\nPress CTRL + Space twice to leave.\r\n",
-                    )
-                    .await?;
+                terminal.write(MOTD_BINARY.as_bytes()).await?;
                 self.parser.unterminate();
                 self.mode = InterfaceMode::Binary;
             }
@@ -228,7 +228,7 @@ impl Interface {
                     self.line.load(text);
                     terminal.write(text.as_bytes()).await?;
                 }
-            },
+            }
             Key::ArrowRight => {
                 if self.line.move_cursor_right() {
                     terminal.cursor_right().await?;

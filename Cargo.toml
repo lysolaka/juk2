@@ -1,6 +1,6 @@
 [workspace]
 resolver = "3"
-members = ["juk-firmware", "juk-led"]
+members = ["juk-com", "juk-firmware", "juk-led"]
 default-members = ["juk-firmware"]
 
 [workspace.package]

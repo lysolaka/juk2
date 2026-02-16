@@ -11,6 +11,7 @@ mod eventparser;
 mod interface;
 mod terminal;
 
+pub mod history;
 pub mod linebuffer;
 
 use alloc::{string::String, vec::Vec};

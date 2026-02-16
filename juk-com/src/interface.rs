@@ -7,6 +7,7 @@ use crate::{
     Input,
     Terminal,
     eventparser::{Event, EventParser, Key},
+    history::History,
     linebuffer::LineBuffer,
 };
 
@@ -43,6 +44,7 @@ pub struct Interface {
     mode: InterfaceMode,
     parser: EventParser,
     line: LineBuffer,
+    history: History,
     binary_buf: Vec<u8>,
 }
 
@@ -53,6 +55,7 @@ impl Interface {
             mode: InterfaceMode::Text,
             parser: EventParser::new(),
             line: LineBuffer::new(),
+            history: History::new(),
             binary_buf: Vec::with_capacity(128),
         }
     }
@@ -137,6 +140,7 @@ impl Interface {
     ) -> Result<Option<Input>, T::Error> {
         match event {
             Event::Print(c) => {
+                self.history.reset_view();
                 self.line.insert_char(c);
                 let mut b = [0; 4];
                 let s = c.encode_utf8(&mut b);
@@ -154,6 +158,7 @@ impl Interface {
                 // CTRL + C (ETX)
                 0x03 => {
                     terminal.write(b"^C\r\n").await?;
+                    self.history.reset_view();
                     self.line.clear();
                     Ok(Some(Input::EndOfText))
                 }
@@ -176,6 +181,8 @@ impl Interface {
                     terminal.write(b"\r\n").await?;
                     let text = self.line.take();
                     self.line.clear();
+                    self.history.add(&text);
+                    self.history.reset_view();
                     Ok(Some(Input::Text(text)))
                 }
                 // CTRL + X (CAN)
@@ -200,8 +207,28 @@ impl Interface {
         terminal: &mut T,
     ) -> Result<(), T::Error> {
         match key {
-            Key::ArrowUp => (),   // TODO
-            Key::ArrowDown => (), // TODO
+            Key::ArrowUp => {
+                if let Some(text) = self.history.previous(self.line.as_str()) {
+                    // clear the line
+                    for _ in 0..self.line.cursor_char_pos() {
+                        terminal.cursor_left().await?;
+                    }
+                    terminal.clear_eol().await?;
+                    self.line.load(text);
+                    terminal.write(text.as_bytes()).await?;
+                }
+            }
+            Key::ArrowDown => {
+                if let Some(text) = self.history.next() {
+                    // clear the line
+                    for _ in 0..self.line.cursor_char_pos() {
+                        terminal.cursor_left().await?;
+                    }
+                    terminal.clear_eol().await?;
+                    self.line.load(text);
+                    terminal.write(text.as_bytes()).await?;
+                }
+            },
             Key::ArrowRight => {
                 if self.line.move_cursor_right() {
                     terminal.cursor_right().await?;

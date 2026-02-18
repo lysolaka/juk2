@@ -16,6 +16,7 @@ use esp_hal::{
 };
 use esp_println as _;
 use juk_com::{Input, Interface, Terminal};
+use juk_firmware::strings;
 
 esp_bootloader_esp_idf::esp_app_desc!();
 
@@ -46,30 +47,24 @@ async fn main(spawner: Spawner) -> ! {
 
     let mut interface = Interface::new();
 
-    defmt::expect!(
-        <Uart<esp_hal::Async> as Terminal>::write(&mut uart, b"Welcome to JUK2\r\n$ ").await,
-        "UART write failed"
-    );
+    defmt::expect!(strings::print_verinfo(&mut uart).await, "UART write failed");
+    uwrite(&mut uart, strings::WELCOME_MOTD).await;
+    uwrite(&mut uart, "$ ").await;
+
     loop {
         match interface.get_input(&mut uart).await {
             Ok(input) => match input {
                 Input::Binary(items) => defmt::info!("Binary input: {=[u8]}", &items[..]),
                 Input::Text(text) => {
                     defmt::info!("Text input: {}", text.as_str());
-                    defmt::expect!(
-                        <Uart<esp_hal::Async> as Terminal>::write(&mut uart, b"$ ").await,
-                        "UART write failed"
-                    );
+                    uwrite(&mut uart, "$ ").await;
                 }
                 Input::EndOfTransmission => {
                     defmt::info!("CTRL + D: resetting...");
                     esp_hal::system::software_reset();
                 }
                 _ => {
-                    defmt::expect!(
-                        <Uart<esp_hal::Async> as Terminal>::write(&mut uart, b"$ ").await,
-                        "UART write failed"
-                    );
+                    uwrite(&mut uart, "$ ").await;
                     defmt::expect!(interface.redraw_line(&mut uart).await, "UART write failed");
                 }
             },
@@ -79,4 +74,12 @@ async fn main(spawner: Spawner) -> ! {
             }
         }
     }
+}
+
+/// Quick wrapper for UART writes using the [`Terminal`] trait.
+///
+/// NOTE: for testing purposes only.
+#[inline]
+async fn uwrite<T: Terminal>(term: &mut T, text: &str) {
+    defmt::expect!(term.write(text.as_bytes()).await, "UART write failed");
 }

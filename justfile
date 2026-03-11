@@ -6,6 +6,7 @@ alias con := connect
 jtag := "/dev/serial/by-id/usb-Espressif_USB_JTAG_serial_debug_unit_D8:3B:DA:4A:FC:30-if00"
 uart := "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5A67168064-if00"
 
+[private]
 default:
   @just --list
 

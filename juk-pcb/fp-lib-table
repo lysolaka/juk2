@@ -1,0 +1,4 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "JUK2")(type "KiCad")(uri "${KIPRJMOD}/JUK2.pretty")(options "")(descr ""))
+)

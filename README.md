@@ -1,18 +1,21 @@
 # JUK2
 
-JUK2 is a CNC plotter firmware for the ESP32-S3 and the non-existant (for now) custom PCB and plotter frame.
+JUK2 is a CNC plotter firmware for the ESP32-S3 on a custom PCB and plotter frame.
 
 JUK2 is the successor of JUK - a private, messy and ugly project. It's second version is supposed to be everything the first one was not able to be.
 
 # Hardware
 
-For now the firmware is developed for [ESP32-S3-DEV-KIT-N8R8](https://www.waveshare.com/wiki/ESP32-S3-DEV-KIT-N8R8)
+The custom design can be found under the `juk-pcb` directory. It also has a schematic and a STEP model available for those, who don't have KiCad installed.
+
+*TODO:* add a nice picture of the board, once it arrives
 
 *TODO:* write some more about the hardware: motors used, kinematics.
 
 # Software
 
 Just like the first edition of JUK, the entire software stack is developed using Rust. This time the project is split into crates in a single workspace. The structure is as follows:
+- `juk-com`: a communication library implementing text and binary interfaces
 - `juk-firmware`: the main firmware executable
 - `juk-led`: a simple library to use the onboard WS2812B RGB LED (one of many libraries of this type)
 

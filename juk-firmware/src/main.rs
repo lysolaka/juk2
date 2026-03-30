@@ -16,7 +16,6 @@ use esp_hal::{
 };
 use esp_println as _;
 use juk_com::{Input, Interface, Terminal};
-use juk_firmware::strings;
 
 esp_bootloader_esp_idf::esp_app_desc!();
 
@@ -47,8 +46,6 @@ async fn main(spawner: Spawner) -> ! {
 
     let mut interface = Interface::new();
 
-    defmt::expect!(strings::print_verinfo(&mut uart).await, "UART write failed");
-    uwrite(&mut uart, strings::WELCOME_MOTD).await;
     uwrite(&mut uart, "$ ").await;
 
     loop {

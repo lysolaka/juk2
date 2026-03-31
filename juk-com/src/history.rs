@@ -44,7 +44,7 @@ impl History {
         self.saved_line = None;
     }
 
-    /// Get the previous (older) history entry. 
+    /// Get the previous (older) history entry.
     ///
     /// Save `current_line` for later, it will be returned when history browsing ends.
     pub fn previous(&mut self, current_line: &str) -> Option<&str> {

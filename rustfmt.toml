@@ -7,6 +7,6 @@ wrap_comments = false
 doc_comment_code_block_width = 100
 comment_width = 100
 
-group_imports = "StdExternalCrate"
+group_imports = "Preserve"
 imports_granularity = "Crate"
 imports_layout = "HorizontalVertical"

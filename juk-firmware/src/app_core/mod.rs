@@ -15,8 +15,7 @@ pub async fn main(
     let (_, _) = (limits, motor);
 
     loop {
-        defmt::info!("Hello from the application core!");
-        embassy_time::Timer::after_secs(4).await;
-
+        // defmt::info!("Hello from the application core!");
+        embassy_time::Timer::after_secs(5).await;
     }
 }

@@ -1297,7 +1297,7 @@ dependencies = [
 
 [[package]]
 name = "juk-com"
-version = "0.1.0-dev.3"
+version = "0.1.0-dev.4"
 dependencies = [
  "circular-buffer",
  "defmt 1.0.1",
@@ -1308,7 +1308,7 @@ dependencies = [
 
 [[package]]
 name = "juk-firmware"
-version = "0.1.0-dev.3"
+version = "0.1.0-dev.4"
 dependencies = [
  "critical-section",
  "defmt 1.0.1",
@@ -1328,7 +1328,7 @@ dependencies = [
 
 [[package]]
 name = "juk-led"
-version = "0.1.0-dev.3"
+version = "0.1.0-dev.4"
 dependencies = [
  "defmt 1.0.1",
  "esp-hal",

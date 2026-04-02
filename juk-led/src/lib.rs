@@ -65,18 +65,18 @@ impl<'d> LEDAdapter<'d> {
         green: impl PeripheralOutput<'d>,
         blue: impl PeripheralOutput<'d>,
     ) -> Result<Self, channel::Error> {
-        defmt::info!(
+        defmt::debug!(
             "LED Timer: freq_hw = {:?}",
             tim.freq_hw().unwrap_or(Rate::from_hz(0))
         );
-        defmt::info!("LED Timer: freq = {=u32} Hz", tim.frequency());
+        defmt::debug!("LED Timer: freq = {=u32} Hz", tim.frequency());
 
         let max_duty = if let Some(d) = tim.duty() {
             d as u32
         } else {
             0
         };
-        defmt::info!("LED Timer: max_duty = {=u32}", (1 << max_duty) - 1);
+        defmt::debug!("LED Timer: max_duty = {=u32}", (1 << max_duty) - 1);
 
         let mut ch_red = ledc.channel(channel::Number::Channel0, red);
         ch_red.configure(channel::config::Config {

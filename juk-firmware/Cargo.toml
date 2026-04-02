@@ -23,6 +23,7 @@ esp-alloc = "0.9"
 static_cell = "2.1"
 
 juk-com = { path = "../juk-com" }
+juk-led = { path = "../juk-led" }
 
 [dependencies.esp-println]
 version = "0.16"

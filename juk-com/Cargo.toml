@@ -9,9 +9,9 @@ edition.workspace = true
 rust-version.workspace = true
 
 [dependencies]
-circular-buffer = { version = "1.2.0", default-features = false, features = ["alloc"] }
+circular-buffer = { version = "1.2", default-features = false, features = ["alloc"] }
 esp-hal = { version = "~1.0", default-features = false, features = ["defmt", "requires-unstable"] }
-str_indices = { version = "0.4.4", default-features = false }
-vte = { version = "0.15.0", default-features = false }
+str_indices = { version = "0.4", default-features = false }
+vte = { version = "0.15", default-features = false }
 
-defmt = "1.0.1"
+defmt = "1.0"

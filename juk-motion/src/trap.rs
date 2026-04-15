@@ -166,8 +166,8 @@ impl Trap {
             v_init,
             v_max,
             v_end,
-            current_step: 1,
-            total_steps: steps,
+            current_step: 1, // starting at 1 to avoid `velocity = 0`
+            total_steps: steps + 1, // ending at +1 for the same reason
             accel_steps,
             hold_steps,
             decel_steps,
@@ -176,7 +176,7 @@ impl Trap {
 
     /// Compute the current motion phase.
     fn phase(&self) -> RampPhase {
-        if self.current_step > self.total_steps {
+        if self.current_step >= self.total_steps {
             return RampPhase::Idle;
         }
 

@@ -32,6 +32,8 @@ pub struct FastTrap {
 impl FastTrap {
     /// Construct a new trapezoidal profile with the desired acceleration (deceleration), maximum velocity and
     /// steps to travel.
+    ///
+    /// The units could be anything, but `steps / s` and `steps / s^2` work best.
     pub fn new(accel: f32, v_max: f32, steps: u32) -> Self {
         let d_min = 1.0 / v_max;
         let d_init = 1.0 / libm::sqrtf(2.0 * accel);
@@ -93,7 +95,12 @@ impl Profile for FastTrap {
     }
 }
 
-// TODO: docs
+/// Full trapezoidal profile.
+///
+/// Supports custom initial and final velocities unlike its brother [`FastTrap`]. To accomplish
+/// that, the calculations are more complex, but honestly should be quick enough for most common
+/// sense velocities. Just like in [`FastTrap`] the acceleration and deceleration magnitude is the
+/// same.
 #[derive(defmt::Format)]
 pub struct Trap {
     a: f32,
@@ -108,6 +115,12 @@ pub struct Trap {
 }
 
 impl Trap {
+    /// Construct a new trapezoidal profile. The parameters are:
+    /// - `accel`: Acceleratiion [`steps / s^2`]
+    /// - `v_init`: Initial velocity [`steps / s`]
+    /// - `v_max`: Maximum velocity [`steps / s`]
+    /// - `v_end`: Final velocity [`steps / s`]
+    /// - `steps`: Distance to travel
     pub fn new(accel: f32, v_init: f32, v_max: f32, v_end: f32, steps: u32) -> Self {
         let total_steps = steps as f32;
 
@@ -152,6 +165,7 @@ impl Trap {
         }
     }
 
+    /// Compute the current motion phase.
     fn phase(&self) -> RampPhase {
         if self.current_step > self.total_steps {
             return RampPhase::Idle;

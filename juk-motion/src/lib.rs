@@ -1,3 +1,4 @@
+//! Motion profiles and trajectory generation for JUK2
 #![no_std]
 
 pub mod trap;

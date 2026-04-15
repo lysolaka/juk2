@@ -1,5 +1,7 @@
 //! Trapezoidal motion profiles
 
+use crate::Profile;
+
 /// Representation of the current motion phase
 #[derive(defmt::Format)]
 enum RampPhase {
@@ -65,9 +67,10 @@ impl FastTrap {
             RampPhase::Accel
         }
     }
+}
 
-    /// Compute the delay until next step. Returns `None` when movement is finished.
-    pub(crate) fn next_delay(&mut self) -> Option<f32> {
+impl Profile for FastTrap {
+    fn next_delay(&mut self) -> Option<f32> {
         let q = self.a * self.d_prev * self.d_prev;
         let addend = 1.5 * q * q;
 
@@ -111,30 +114,30 @@ impl Trap {
         let accel_dist = (v_max * v_max - v_init * v_init) / (2.0 * accel);
         let decel_dist = (v_max * v_max - v_end * v_end) / (2.0 * accel);
 
-        let (v_max, accel_steps, hold_steps, decel_steps) = if accel_dist + decel_dist
-            <= total_steps
-        {
-            // trapezoidal profile
-            let accel_steps = libm::floorf(accel_dist) as u32;
-            let decel_steps = libm::floorf(decel_dist) as u32;
-            let hold_steps = steps - accel_steps - decel_steps;
+        let (v_max, accel_steps, hold_steps, decel_steps) =
+            if accel_dist + decel_dist <= total_steps {
+                // trapezoidal profile
+                let accel_steps = libm::floorf(accel_dist) as u32;
+                let decel_steps = libm::floorf(decel_dist) as u32;
+                let hold_steps = steps - accel_steps - decel_steps;
 
-            (v_max, accel_steps, hold_steps, decel_steps)
-        } else {
-            // triangular profile
-            let v_peak = (2.0 * total_steps * accel * accel
-                + accel * v_init * v_init
-                + accel * v_end * v_end)
-                / (2.0 * accel);
+                (v_max, accel_steps, hold_steps, decel_steps)
+            } else {
+                // triangular profile
+                let v_peak = (2.0 * total_steps * accel * accel
+                    + accel * v_init * v_init
+                    + accel * v_end * v_end)
+                    / (2.0 * accel);
 
-            let v_peak = libm::sqrtf(v_peak);
+                let v_peak = libm::sqrtf(v_peak);
 
-            let accel_steps = libm::floorf((v_peak * v_peak - v_init * v_init) / (2.0 * accel)) as u32;
+                let accel_steps =
+                    libm::floorf((v_peak * v_peak - v_init * v_init) / (2.0 * accel)) as u32;
 
-            let decel_steps = steps - accel_steps;
+                let decel_steps = steps - accel_steps;
 
-            (v_peak, accel_steps, 0, decel_steps)
-        };
+                (v_peak, accel_steps, 0, decel_steps)
+            };
 
         Self {
             a: accel,
@@ -162,8 +165,10 @@ impl Trap {
             RampPhase::Decel
         }
     }
+}
 
-    pub(crate) fn next_delay(&mut self) -> Option<f32> {
+impl Profile for Trap {
+    fn next_delay(&mut self) -> Option<f32> {
         let v = match self.phase() {
             RampPhase::Idle => return None,
             RampPhase::Accel => {

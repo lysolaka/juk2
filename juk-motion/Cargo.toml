@@ -9,3 +9,5 @@ edition.workspace = true
 rust-version.workspace = true
 
 [dependencies]
+defmt = "1.0"
+libm = "0.2"

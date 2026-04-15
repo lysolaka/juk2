@@ -27,6 +27,7 @@ pub struct FastTrap {
     d_init: f32,
     d_prev: f32,
     steps: u32,
+    started: bool,
 }
 
 impl FastTrap {
@@ -44,6 +45,7 @@ impl FastTrap {
             d_init,
             d_prev: d_init,
             steps,
+            started: false,
         }
     }
 
@@ -57,7 +59,7 @@ impl FastTrap {
         let s_stop = (v * v) / (2.0 * self.a);
         let s_stop = libm::ceilf(s_stop) as u32;
 
-        if self.steps <= s_stop {
+        if self.steps < s_stop {
             return RampPhase::Decel;
         }
 
@@ -73,6 +75,13 @@ impl FastTrap {
 
 impl Profile for FastTrap {
     fn next_delay(&mut self) -> Option<f32> {
+        // this makes the profile symmetric
+        if !self.started {
+            self.started = true;
+            self.steps = self.steps.saturating_sub(1);
+            return Some(self.d_init);
+        }
+
         let q = self.a * self.d_prev * self.d_prev;
         let addend = 1.5 * q * q;
 

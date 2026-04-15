@@ -4,7 +4,10 @@ alias mon := monitor
 alias con := connect
 
 jtag := "/dev/ttyACM0"
-uart := "/dev/ttyACM1"
+uart := "/dev/ttyUSB0"
+
+elf := "./target/xtensa-esp32s3-none-elf/release/juk-firmware"
+log-output := "[{L:severity:4}] {s}"
 
 [private]
 default:
@@ -16,11 +19,13 @@ build:
 
 # Run release configuration
 run:
-  @cargo run --release
+  @cargo build --release
+  espflash flash --monitor --port {{jtag}} --chip esp32s3 --log-format defmt --output-format '{{log-output}}' {{elf}}
+
 
 # Monitor logs
 monitor:
-  @espflash flash --monitor --port {{jtag}} --chip esp32s3 --log-format defmt --output-format '[{L:severity:4}] {s}' target/xtensa-esp32s3-none-elf/release/juk-firmware
+  @espflash monitor --port {{jtag}} --chip esp32s3 --log-format defmt --output-format '{{log-output}}' --elf {{elf}}
 
 # Connect using UART
 connect:

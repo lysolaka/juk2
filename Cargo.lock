@@ -1322,6 +1322,7 @@ dependencies = [
  "esp-rtos",
  "juk-com",
  "juk-led",
+ "juk-motion",
  "shadow-rs",
  "static_cell",
 ]

@@ -1,6 +1,7 @@
 //! Motion profiles and trajectory generation for JUK2
 #![no_std]
 
+pub mod flat;
 pub mod trap;
 
 /// Trait for motion profiles allowing the use of a single interface.

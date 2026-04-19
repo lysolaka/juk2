@@ -24,6 +24,7 @@ static_cell = "2.1"
 
 juk-com = { path = "../juk-com" }
 juk-led = { path = "../juk-led" }
+juk-motion = { path = "../juk-motion" }
 
 [dependencies.esp-println]
 version = "0.16"

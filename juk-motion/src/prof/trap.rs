@@ -1,6 +1,6 @@
 //! Trapezoidal motion profiles
 
-use crate::prof::Profile;
+use crate::{Error, prof::Profile};
 
 /// Representation of the current motion phase
 #[derive(defmt::Format)]
@@ -35,18 +35,32 @@ impl FastTrap {
     /// steps to travel.
     ///
     /// The units could be anything, but `steps / s` and `steps / s^2` work best.
-    pub fn new(accel: f32, v_max: f32, steps: u32) -> Self {
+    ///
+    /// # Errors
+    ///
+    /// It is an error if any argument is zero. See the source for details.
+    pub fn new(accel: f32, v_max: f32, steps: u32) -> Result<Self, Error> {
+        if accel == 0.0 {
+            return Err(Error::ZeroAcceleration);
+        }
+        if v_max == 0.0 {
+            return Err(Error::ZeroVelocity);
+        }
+        if steps == 0 {
+            return Err(Error::ZeroDisplacement);
+        }
+
         let d_min = 1.0 / v_max;
         let d_init = 1.0 / libm::sqrtf(2.0 * accel);
 
-        Self {
+        Ok(Self {
             a: accel,
             d_min,
             d_init,
             d_prev: d_init,
             steps,
             started: false,
-        }
+        })
     }
 
     /// Compute the current motion phase.
@@ -124,13 +138,30 @@ pub struct Trap {
 }
 
 impl Trap {
-    /// Construct a new trapezoidal profile. The parameters are:
+    /// Construct a new trapezoidal profile.
+    ///
+    /// # Arguments
+    ///
     /// - `accel`: Acceleratiion [`steps / s^2`]
     /// - `v_init`: Initial velocity [`steps / s`]
     /// - `v_max`: Maximum velocity [`steps / s`]
     /// - `v_end`: Final velocity [`steps / s`]
     /// - `steps`: Distance to travel
-    pub fn new(accel: f32, v_init: f32, v_max: f32, v_end: f32, steps: u32) -> Self {
+    ///
+    /// # Errors
+    ///
+    /// If `accel` or `v_max`, or `steps` is 0, an error is returned.
+    pub fn new(accel: f32, v_init: f32, v_max: f32, v_end: f32, steps: u32) -> Result<Self, Error> {
+        if accel == 0.0 {
+            return Err(Error::ZeroAcceleration);
+        }
+        if v_max == 0.0 {
+            return Err(Error::ZeroVelocity);
+        }
+        if steps == 0 {
+            return Err(Error::ZeroDisplacement);
+        }
+
         let total_steps = steps as f32;
 
         let accel_dist = (v_max * v_max - v_init * v_init) / (2.0 * accel);
@@ -161,17 +192,17 @@ impl Trap {
                 (v_peak, accel_steps, 0, decel_steps)
             };
 
-        Self {
+        Ok(Self {
             a: accel,
             v_init,
             v_max,
             v_end,
-            current_step: 1, // starting at 1 to avoid `velocity = 0`
+            current_step: 1,        // starting at 1 to avoid `velocity = 0`
             total_steps: steps + 1, // ending at +1 for the same reason
             accel_steps,
             hold_steps,
             decel_steps,
-        }
+        })
     }
 
     /// Compute the current motion phase.

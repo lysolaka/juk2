@@ -1,6 +1,6 @@
 //! 3D line interpolator based on the Bresenham's algorithm
 
-use crate::interp::Step;
+use crate::{Error, interp::Step};
 
 #[derive(defmt::Format)]
 enum Axis {
@@ -28,7 +28,15 @@ pub struct LineGenerator {
 
 impl LineGenerator {
     /// Construct a [`LineGenerator`] from the final position relative to the current one (in steps).
-    pub const fn new(dx: i32, dy: i32, dz: i32) -> Self {
+    pub const fn new(dx: i32, dy: i32, dz: i32) -> Result<Self, Error> {
+        if dx == 0 && dy == 0 && dz == 0 {
+            Err(Error::ZeroDisplacement)
+        } else {
+            Ok(LineGenerator::new_unchecked(dx, dy, dz))
+        }
+    }
+
+    pub(crate) const fn new_unchecked(dx: i32, dy: i32, dz: i32) -> Self {
         let lx = Step::from_displacement(dx);
         let ly = Step::from_displacement(dy);
         let lz = Step::from_displacement(dz);

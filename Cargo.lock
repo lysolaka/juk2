@@ -1340,7 +1340,9 @@ name = "juk-motion"
 version = "0.1.0-dev.4"
 dependencies = [
  "defmt 1.0.1",
+ "esp-hal",
  "libm",
+ "thiserror",
 ]
 
 [[package]]

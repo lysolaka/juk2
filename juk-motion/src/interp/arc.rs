@@ -2,7 +2,10 @@
 
 use core::iter::FlatMap;
 
-use crate::interp::{ArcDir, LineGenerator, Step, line::LineIter};
+use crate::{
+    Error,
+    interp::{ArcDir, LineGenerator, Step, line::LineIter},
+};
 
 /// 2D arc interpolator with support for helix movements.
 #[derive(defmt::Format, Clone, Copy)]
@@ -45,9 +48,9 @@ impl ArcGenerator {
     /// - `r = 0`: no radius means no arc,
     /// - zero displacement: no movement,
     /// - radius too small: can't draw an arc like that.
-    pub fn new(dx: i32, dy: i32, dz: i32, r: u32, dir: ArcDir) -> Result<Self, ()> {
+    pub fn new(dx: i32, dy: i32, dz: i32, r: u32, dir: ArcDir) -> Result<Self, Error> {
         if r == 0 {
-            todo!();
+            return Err(Error::ZeroRadius);
         }
 
         let r = r as f32;
@@ -57,9 +60,9 @@ impl ArcGenerator {
 
         let d = libm::hypotf(dx, dy);
         if d == 0.0 {
-            todo!();
+            return Err(Error::ZeroDisplacement);
         } else if d > 2.0 * r {
-            todo!();
+            return Err(Error::ImpossibleGeometry);
         }
 
         // midpoint
@@ -168,7 +171,8 @@ impl ArcGenerator {
     /// The tuple is in the order: `(x, y, z)`. See [`Step`] for details about the action.
     pub fn step_iter(self) -> ArcIter<impl FnMut((i32, i32, i32)) -> LineIter> {
         ArcIter {
-            iter: SegmentIter(self).flat_map(|(dx, dy, dz)| LineGenerator::new(dx, dy, dz).step_iter()),
+            iter: SegmentIter(self)
+                .flat_map(|(dx, dy, dz)| LineGenerator::new_unchecked(dx, dy, dz).step_iter()),
             len: self.len(),
         }
     }

@@ -1,6 +1,6 @@
 //! The flat motion profile
 
-use crate::prof::Profile;
+use crate::{Error, prof::Profile};
 
 /// A constant velocity motion profile.
 ///
@@ -13,10 +13,20 @@ pub struct Flat {
 
 impl Flat {
     /// Construct a new flat profile from the velocity and steps to travel.
-    pub fn new(v_max: f32, steps: u32) -> Self {
-        Self {
-            delay: 1.0 / v_max,
-            steps,
+    ///
+    /// # Errors
+    ///
+    /// It is an error if any argument is 0.
+    pub fn new(v_max: f32, steps: u32) -> Result<Self, Error> {
+        if v_max == 0.0 {
+            Err(Error::ZeroVelocity)
+        } else if steps == 0 {
+            Err(Error::ZeroDisplacement)
+        } else {
+            Ok(Self {
+                delay: 1.0 / v_max,
+                steps,
+            })
         }
     }
 }

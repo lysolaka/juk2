@@ -5,6 +5,8 @@ use esp_hal::peripherals::*;
 pub mod app_core;
 pub mod main_core;
 
+pub mod strings;
+
 // to keep the code "clean" we need to define the resources struct again for the sake of making it
 // visible to the entire crate, not just the main function
 

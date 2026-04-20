@@ -1,6 +1,6 @@
 //! The flat motion profile
 
-use crate::Profile;
+use crate::prof::Profile;
 
 /// A constant velocity motion profile.
 ///

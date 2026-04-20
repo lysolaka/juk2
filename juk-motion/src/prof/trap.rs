@@ -1,6 +1,6 @@
 //! Trapezoidal motion profiles
 
-use crate::Profile;
+use crate::prof::Profile;
 
 /// Representation of the current motion phase
 #[derive(defmt::Format)]

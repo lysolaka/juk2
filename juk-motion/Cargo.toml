@@ -1,6 +1,6 @@
 [package]
 name = "juk-motion"
-description = "Motion profile and trajectory generation for JUK2"
+description = "Motion profile and interpolators for JUK2"
 version.workspace = true
 authors.workspace = true
 license.workspace = true

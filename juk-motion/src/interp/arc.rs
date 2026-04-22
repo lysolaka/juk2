@@ -77,8 +77,8 @@ impl ArcGenerator {
 
         // center coordinates
         let (cx, cy) = match dir {
-            ArcDir::CW => (mx - ux * h, my - uy * h),
-            ArcDir::CCW => (mx + ux * h, my + uy * h),
+            ArcDir::Neg => (mx - ux * h, my - uy * h),
+            ArcDir::Pos => (mx + ux * h, my + uy * h),
         };
 
         // vector from center to start and end
@@ -101,14 +101,14 @@ impl ArcGenerator {
         }
 
         let delta = match dir {
-            ArcDir::CCW => {
+            ArcDir::Pos => {
                 if delta < 0.0 {
                     delta + 2.0 * core::f32::consts::PI
                 } else {
                     delta
                 }
             }
-            ArcDir::CW => {
+            ArcDir::Neg => {
                 if delta > 0.0 {
                     delta - 2.0 * core::f32::consts::PI
                 } else {

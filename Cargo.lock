@@ -1300,6 +1300,7 @@ name = "juk-com"
 version = "0.1.0-dev.5"
 dependencies = [
  "circular-buffer",
+ "const_format",
  "defmt 1.0.1",
  "esp-hal",
  "str_indices",

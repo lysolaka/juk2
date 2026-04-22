@@ -3,6 +3,8 @@
 use alloc::vec::Vec;
 use core::mem;
 
+use const_format::concatcp;
+
 use crate::{
     Input,
     Terminal,
@@ -11,11 +13,21 @@ use crate::{
     linebuffer::LineBuffer,
 };
 
+const INFO: &str = "\x1b[1;32m*\x1b[0m ";
+const WHITE: &str = "\x1b[1;37m";
+const CLEAR: &str = "\x1b[0m";
+
 /// The message to display when switching to text mode.
-const MOTD_TEXT: &'static str = "\r\n\x1b[1;32m*\x1b[0m Switching to text mode\r\n";
+#[rustfmt::skip]
+const TEXT_SWITCH: &str = concatcp!("\r\n", INFO, "Switching to text mode\r\n");
 
 /// The message to display when switching to binary mode.
-const MOTD_BINARY: &'static str = "\r\n\x1b[1;32m*\x1b[0m Switching to binary mode\r\n\x1b[1;32m*\x1b[0m Press \x1b[1;37mCTRL + Space\x1b[0m once or twice to leave\r\n";
+#[rustfmt::skip]
+const BINARY_SWITCH: &str = concatcp!(
+    "\r\n",
+    INFO, "Switching to binary mode\r\n",
+    INFO, "Press ", WHITE, "CTRL + Space", CLEAR, " once or twice to leave\r\n"
+);
 
 /// The operating mode of [`Interface`].
 ///
@@ -93,7 +105,7 @@ impl Interface {
         if byte == 0x00 {
             if self.binary_buf.is_empty() {
                 defmt::debug!("Binary mode got an empty frame, switching input mode to text");
-                terminal.write(MOTD_TEXT.as_bytes()).await?;
+                terminal.write(TEXT_SWITCH.as_bytes()).await?;
                 self.mode = InterfaceMode::Text;
                 Ok(Some(Input::EndOfText))
             } else {
@@ -120,7 +132,7 @@ impl Interface {
 
             if self.parser.terminated() {
                 defmt::debug!("Text mode parser terminated, switching input mode to binary");
-                terminal.write(MOTD_BINARY.as_bytes()).await?;
+                terminal.write(BINARY_SWITCH.as_bytes()).await?;
                 self.parser.unterminate();
                 self.mode = InterfaceMode::Binary;
             }

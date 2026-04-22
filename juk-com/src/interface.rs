@@ -79,6 +79,12 @@ impl Interface {
         }
     }
 
+    /// Get the contents of the linebuffer as they are stored there (not trimmed).
+    pub fn linebuffer(&self) -> &str {
+        self.line.as_str()
+    }
+
+
     /// Wait for an input event.
     ///
     /// The parser does not do any work, when this function is not running. The function will return
@@ -195,6 +201,10 @@ impl Interface {
         terminal: &mut T,
     ) -> Result<Option<Input>, T::Error> {
         match event {
+            Event::Print(c) if c == '?' => {
+                terminal.write(b"\r\n").await?;
+                Ok(Some(Input::Help))
+            }
             Event::Print(c) => {
                 self.history.reset_view();
                 self.line.insert_char(c);

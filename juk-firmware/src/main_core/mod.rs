@@ -63,7 +63,6 @@ pub async fn main(spawner: Spawner, com: ComResources<'static>, led: LedResource
     }
 }
 
-#[inline]
 async fn twrite<T: Terminal>(term: &mut T, text: &str) {
     defmt::expect!(term.write(text.as_bytes()).await, "UART write failed");
 }

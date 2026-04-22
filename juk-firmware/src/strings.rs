@@ -6,11 +6,10 @@ pub const INFO: &str = "\x1b[1;32m*\x1b[0m ";
 pub const WARN: &str = "\x1b[1;33m*\x1b[0m ";
 
 const VERSION_VER: &str = formatcp!(
-    "{}: {} ({}) [{}]\r\n",
+    "{}: {} ({})\r\n",
     build::PROJECT_NAME,
     build::PKG_VERSION,
     build::BUILD_TIME,
-    build::RUST_VERSION
 );
 const VERSION_GIT: &str = formatcp!(
     "Built from {} ({}), on branch `{}`\r\n",

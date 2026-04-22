@@ -2,8 +2,8 @@ use const_format::{concatcp, formatcp};
 
 shadow_rs::shadow!(build);
 
-const INFO: &str = "\x1b[1;32m*\x1b[0m ";
-const WARN: &str = "\x1b[1;33m*\x1b[0m ";
+pub const INFO: &str = "\x1b[1;32m*\x1b[0m ";
+pub const WARN: &str = "\x1b[1;33m*\x1b[0m ";
 
 const VERSION_VER: &str = formatcp!(
     "{}: {} ({}) [{}]\r\n",

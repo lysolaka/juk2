@@ -1,9 +1,10 @@
 //! The [`Interface`] struct implementation.
 
-use alloc::vec::Vec;
+use alloc::{string::String, vec::Vec};
 use core::mem;
 
 use const_format::concatcp;
+use embassy_futures::select::{Either, select};
 
 use crate::{
     Input,
@@ -91,6 +92,49 @@ impl Interface {
                 InterfaceMode::Text => self.text_dispatch(byte, terminal).await?,
             } {
                 return Ok(input);
+            }
+        }
+    }
+
+    /// Wait for an input event while being able to print asynchronous output.
+    ///
+    /// This is most useful if other tasks want to print to the terminal while the user is typing.
+    /// `async_out` is a future, which might produce the [`String`] to be printed, `prompt` is the
+    /// current terminal prompt (used in case an output came and there's a need to redraw the line).
+    ///
+    /// Otherwise this method is similar to [`Interface::get_input()`].
+    pub async fn get_input_async_out<T, F, Fut>(
+        &mut self,
+        terminal: &mut T,
+        mut async_out: F,
+        prompt: &str,
+    ) -> Result<Input, T::Error>
+    where
+        T: Terminal,
+        F: FnMut() -> Fut,
+        Fut: Future<Output = String>,
+    {
+        loop {
+            match select(terminal.read_byte(), async_out()).await {
+                Either::First(Ok(byte)) => {
+                    if let Some(input) = match self.mode {
+                        InterfaceMode::Binary => self.binary_dispatch(byte, terminal).await?,
+                        InterfaceMode::Text => self.text_dispatch(byte, terminal).await?,
+                    } {
+                        return Ok(input);
+                    }
+                }
+                Either::First(Err(e)) => return Err(e),
+                Either::Second(s) => {
+                    terminal.write(b"\r").await?;
+                    terminal.clear_eol().await?;
+                    terminal.write(s.as_bytes()).await?;
+                    if self.mode == InterfaceMode::Text {
+                        terminal.write(prompt.as_bytes()).await?;
+                        self.redraw_line(terminal).await?;
+                    }
+                    terminal.flush().await?;
+                }
             }
         }
     }

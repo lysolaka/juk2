@@ -12,11 +12,16 @@ TODO: table
 
 ## Interface Modes
 
-TODO
+The interface can be in one of two states: text or binary. After reset the state is set to text, the user may communicate with the machine using a command line interface. Binary mode is used for communicating with a PC using messages in a binary format. To switch between the modes the user has to press `CTRL + Space` once or twice, depending on the current state of the input buffer. The user is also notified about the switch by a message on the terminal when said switch happens. The external RGB indicator colour shows the current mode: green means text mode, magenta - binary mode.
 
 ## Keybindings
 
-TODO
+While the interface is in text mode, the following key combinations are recognised:
+- `?`: Displays help based on the current command, if the command name is not entered, displays the command list
+- `CTRL + X`: Cancels the current movement and flushes the execution queue
+- `CTRL + C`: Cancels the current input at the command line
+- `CTRL + D`: If the command line is empty, issues a software reset
+- `CTRL + G`: Easter egg
 
 # Command Reference
 

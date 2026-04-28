@@ -8,6 +8,117 @@ TODO: table
 
 ## Description
 
+#### `accel` - Default Acceleration
+
+Data type: `f32`
+Value range: \[`0.0`, `50000.0`\]
+Default value: *TODO*
+
+Default acceleration value in `steps / s^2` used when the acceleration motion parameter is ommited.
+
+Example:
+```
+set accel=12000.0
+```
+
+#### `frame` - Displacement Reference Frame
+
+Data type: `enum`
+Variants: `rel`, `abs`
+Default value: `rel`
+
+Reference frame to use when moving. `rel` means relative to the current position, `abs` - relative to the origin of the \[`posX`, `posY`, `posZ`\] vector.
+
+Example:
+```
+set frame=abs
+```
+
+#### `led` - RGB LED Colour
+
+Data type: `u32`
+Value range: \[`000000`, `ffffff`\]
+Default value: `00ff00`
+
+RGB8 value in HTML notation.
+
+Example:
+```
+set led=ff00ff
+```
+
+#### `limits` - Limit Switch Status
+
+Data type: `[bool; 6]`
+Default value: *undefined*
+
+Limit switch status for each axis and each direction. The data type doesn't matter - the software will display the output in a friendly format.
+
+This configuration key is read-only.
+
+Example:
+```
+get limits
+```
+
+#### `mmps{X,Y,Z}` - Millimeters per Step Coefficient
+
+Data type: `f32`
+Value range: \(`0.0`, `1.0`\]
+Default value:
+- `mmps{X,Y}`: `0.0125625`
+- `mmpsZ`: *TODO*
+
+Millimeters per step coefficient for an axis. To make a move when the value of `unit` is `mm`, the displacement value is divided by its axis `mmps` value and rounded to the nearest integer.
+
+Example:
+```
+set mmpsX=0.02
+set mmpsY=0.0125
+set mmpsZ=0.005
+```
+
+#### `pos{X,Y,Z}` - Current Position
+
+Data type: `u32`
+Value range: \[`0`, `50000`\]
+Default value: `0`
+
+Current position of the end-effector in the unit of steps. Each axis' value is set to 0 after homing that axis. Changing this value does not move the end-effector, it only changes the reference frame.
+
+Example:
+```
+set posX=100
+set posY=43
+set posZ=0
+```
+
+#### `unit` - Displacement Units
+
+Data type: `enum`
+Variants: `steps`, `mm`
+Default value: `steps`
+
+Units to use for the displacement values. `steps` is in the unit of motor steps, `mm` is for millimeters.
+
+Example:
+```
+set unit=mm
+```
+
+#### `vel` - Default Velocity
+
+Data type: `f32`
+Value range: \[`0.0`, `50000.0`\]
+Default value: *TODO*
+
+Default velocity value in `steps / s` used when the velocity motion parameter is ommited.
+
+Example:
+```
+set vel=5000.0
+```
+
 # Interface
 
 ## Interface Modes
@@ -39,31 +150,31 @@ where key names are strings. Values are parsed on a per-key basis: each key has 
 Allowed values for displacement arguments depend on the current reference frame (config: `frame`) and the current unit (config: `unit`).
 
 That is:
-- `frame` = `"rel"`, `unit` = `"steps"`:
+- `frame` = `rel`, `unit` = `steps`:
     - Data type: integer
     - Range: \[-50000, 50000\]
 
-- `frame` = `"rel"`, `unit` = `"mm"`:
-    - Data type: floating point
+- `frame` = `rel`, `unit` = `mm`:
+    - Data type: floating-point
     - Range: \[-1000, 1000\]
 
-- `frame` = `"abs"`, `unit` = `"steps"`:
+- `frame` = `abs`, `unit` = `steps`:
     - Data type: integer
     - Range: \[0, 50000\]
 
-- `frame` = `"abs"`, `unit` = `"mm"`:
-    - Data type: floating point
+- `frame` = `abs`, `unit` = `mm`:
+    - Data type: floating-point
     - Range: \[0, 1000\]
 
 ## Motion Arguments
 
 Allowed values for acceleration and velocity arguments depend on the current unit (config: `unit`).
 
-- `unit` = `"steps"`
+- `unit` = `steps`
     - Data type: floating-point
-    - Range: \[0, 25000\]
+    - Range: \[0, 50000\]
 
-- `unit` = `"mm"`
+- `unit` = `mm`
     - Data type: floating-point
     - Range: \[0, 500\]
 
@@ -162,7 +273,7 @@ home axis=xyz
 Examples:
 ```
 set unit=mm
-set mmps=0.0125 posX=0 posY=500
+set mmpsX=0.0125 posX=0 posY=500
 ```
 
 **Keys:**
@@ -182,7 +293,7 @@ Examples:
 ```
 get posX
 get frame
-get estatus
+get status
 ```
 
 This commands functions differently than the others, namely the keys do not accept a value. This means that the following is an error:
@@ -196,6 +307,8 @@ get pos=loremipsum
 
 Additionally the following keys are available:
 - `pos`: absolute position of every axis in steps
+- `mmps`: millimeters per step coefficient for every axis
+- `status`: combined `pos`, `mmps` and limit switch information
 - `version`: version information
 - `license`: license information
 

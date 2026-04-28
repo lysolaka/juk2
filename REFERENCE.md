@@ -4,7 +4,20 @@
 
 ## Summary
 
-TODO: table
+| Option   | Data Type   | Values                 | Default Value |
+|----------|-------------|------------------------|---------------|
+| `accel`  | `f32`       | \[`0.0`, `50000.0`\]   | *TODO*        |
+| `frame`  | `enum`      | `rel`, `abs`           | `rel`         |
+| `led`    | `u32`       | \[`000000`, `ffffff`\] | `00ff00`      |
+| `limits` | `[bool; 6]` | key is read-only       | *undefined*   |
+| `mmpsX`  | `f32`       | \(`0.0`, `1.0`\]       | `0.0125625`   |
+| `mmpsY`  | `f32`       | \(`0.0`, `1.0`\]       | `0.0125625`   |
+| `mmpsZ`  | `f32`       | \(`0.0`, `1.0`\]       | *TODO*        |
+| `posX`   | `u32`       | \[`0`, `50000`\]       | `0`           |
+| `posY`   | `u32`       | \[`0`, `50000`\]       | `0`           |
+| `posZ`   | `u32`       | \[`0`, `50000`\]       | `0`           |
+| `unit`   | `enum`      | `steps`, `mm`          | `steps`       |
+| `vel`    | `f32`       | \[`0.0`, `50000.0`\]   | *TODO*        |
 
 ## Description
 
@@ -54,7 +67,7 @@ Default value: *undefined*
 
 Limit switch status for each axis and each direction. The data type doesn't matter - the software will display the output in a friendly format.
 
-This configuration key is read-only.
+This configuration key is read-only and cannot be used with the `set` command.
 
 Example:
 ```
@@ -245,7 +258,7 @@ arc x=-10.0 y=-10.0 r=10.0 dir=neg a=500.0 v=100.0
 - `y`: Y axis displacement.
 - `z`: Z axis displacement. The arc is done in the XY plane. Use this to achieve helical motion.
 - `r`: Arc radius. Adheres to the same rules as displacement, but must not be negative.
-- `dir`: direction of the arc. `"pos"` means the direction where the angle of the radius vector increases, `"neg"` - where the angle decreases. Allowed values: `"pos"`, `"neg"`. Default is: `"pos"`
+- `dir`: direction of the arc. `pos` means the direction where the angle of the radius vector increases, `neg` - where the angle decreases. Allowed values: `pos`, `neg`. Default is: `pos`
 - `a`: Movement acceleration.
 - `v`: Movement velocity.
 
@@ -265,7 +278,7 @@ home axis=xyz
 ```
 
 **Keys:**
-- `axis`: the axis (axes) to perform homing on. The only axes are `"x"`, `"y"`, `"z"`, so any combination of these three may be used. Default is: `"xyz"`.
+- `axis`: the axis (axes) to perform homing on. The only axes are `x`, `y`, `z`, so any combination of these three may be used. Default is: `xyz`.
 
 
 #### `set` - Alter the configuration
@@ -279,8 +292,6 @@ set mmpsX=0.0125 posX=0 posY=500
 **Keys:**
 
 *see the configuration reference for the list of keys and their description*
-
-Only the keys marked as read-write can be used.
 
 **Relation:**
 ```

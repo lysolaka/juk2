@@ -38,8 +38,8 @@ pub enum Command {
         y: bool,
         z: bool,
     },
-    // /// Movement kill switch
-    // Cancel,
+    /// Movement kill switch
+    Cancel,
     /// Set a configuration variable
     ConfigSet {
         kv: Vec<(String, String)>,

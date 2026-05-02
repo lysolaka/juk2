@@ -1,6 +1,7 @@
 use embassy_executor::Spawner;
 
 use esp_hal::uart::{Config, DataBits, Parity, StopBits, Uart};
+use juk_cmd::config::SystemConfig;
 use juk_com::{Input, Interface, Terminal};
 
 use crate::{ComResources, LedResources, strings};
@@ -35,6 +36,8 @@ pub async fn main(spawner: Spawner, com: ComResources<'static>, led: LedResource
     twrite(&mut uart, strings::WELCOME).await;
     twrite(&mut uart, "$ ").await;
 
+    let cfg = SystemConfig::default();
+
     loop {
         match interface
             .get_input_async_out(&mut uart, async || crate::TEST_CH.receive().await, "$ ")
@@ -44,6 +47,12 @@ pub async fn main(spawner: Spawner, com: ComResources<'static>, led: LedResource
                 Input::Binary(items) => defmt::info!("Binary input: {=[u8]}", &items[..]),
                 Input::Text(text) => {
                     defmt::info!("Text input: {}", text.as_str());
+                    match juk_cmd::parse_cmd(&text, &cfg) {
+                        Ok(c) => defmt::info!("Got command: {:?}", c),
+                        Err(e) => {
+                            defmt::error!("Error: {}", defmt::Display2Format(&e));
+                        }
+                    }
                     twrite(&mut uart, "$ ").await;
                 }
                 Input::EndOfTransmission => {

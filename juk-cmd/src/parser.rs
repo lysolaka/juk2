@@ -19,6 +19,7 @@ enum Arg<'a> {
     Key(&'a str),
 }
 
+/// Attempt to parse a command from the input.
 pub fn parse_cmd(input: &str, cfg: &SystemConfig) -> Result<Command, Error> {
     let (cmd, args) = split_args(input)?;
 

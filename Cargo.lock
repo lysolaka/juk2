@@ -1337,6 +1337,7 @@ dependencies = [
  "esp-hal",
  "esp-println",
  "esp-rtos",
+ "juk-cmd",
  "juk-com",
  "juk-led",
  "juk-motion",

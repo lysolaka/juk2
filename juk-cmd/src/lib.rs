@@ -36,10 +36,10 @@ pub enum Error {
     #[error("argument relation not satisfied")]
     ArgumentRelation,
     /// Couldn't parse a floating-point number
-    #[error("expected a floating-point number: {0}")]
+    #[error("expected a floating-point number, {0}")]
     FloatParse(#[from] core::num::ParseFloatError),
     /// Couldn't parse an integer number
-    #[error("expected an integer number: {0}")]
+    #[error("expected an integer number, {0}")]
     IntParse(#[from] core::num::ParseIntError),
 }
 

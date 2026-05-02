@@ -1300,6 +1300,11 @@ name = "juk-cmd"
 version = "0.1.0-dev.5"
 dependencies = [
  "const_format",
+ "defmt 1.0.1",
+ "juk-motion",
+ "libm",
+ "serde",
+ "thiserror",
 ]
 
 [[package]]
@@ -1354,6 +1359,7 @@ dependencies = [
  "defmt 1.0.1",
  "esp-hal",
  "libm",
+ "serde",
  "thiserror",
 ]
 

@@ -1296,6 +1296,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "juk-cmd"
+version = "0.1.0-dev.5"
+dependencies = [
+ "const_format",
+]
+
+[[package]]
 name = "juk-com"
 version = "0.1.0-dev.5"
 dependencies = [

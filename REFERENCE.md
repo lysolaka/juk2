@@ -189,7 +189,7 @@ Allowed values for acceleration and velocity arguments depend on the current uni
 
 - `unit` = `mm`
     - Data type: floating-point
-    - Range: \[0, 500\]
+    - Range: the values must be non-negative and after conversion to steps, must fit into the range for `unit` = `steps`.
 
 The acceleration is given as unit per second squared, velocity as unit per second.
 

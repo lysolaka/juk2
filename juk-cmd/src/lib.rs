@@ -6,17 +6,41 @@ extern crate alloc;
 pub mod cmd;
 pub mod config;
 mod defaults;
+mod parser;
+
+pub use parser::parse_cmd;
 
 use serde::{Deserialize, Serialize};
 
 use config::{Frame, SystemConfig};
 
 /// Errors, which can be encountered when using `juk-cmd`.
-#[derive(Debug, defmt::Format, thiserror::Error)]
+#[derive(Debug, thiserror::Error)]
 pub enum Error {
-    /// The input value is out of range
-    #[error("input value out of range")]
-    OutOfRange,
+    /// The displacement value is out of range
+    #[error("displacement value out of range")]
+    DisplacementRange,
+    /// The motion value is out of range
+    #[error("motion value out of range")]
+    MotionRange,
+    /// The command parser failed due to empty input
+    #[error("empty input")]
+    EmptyInput,
+    /// There is no such command
+    #[error("unknown command")]
+    UnknownCommand,
+    /// The command received an invalid argument
+    #[error("invalid argument")]
+    InvalidArgument,
+    /// Argument relation was not satisfied.
+    #[error("argument relation not satisfied")]
+    ArgumentRelation,
+    /// Couldn't parse a floating-point number
+    #[error("expected a floating-point number: {0}")]
+    FloatParse(#[from] core::num::ParseFloatError),
+    /// Couldn't parse an integer number
+    #[error("expected an integer number: {0}")]
+    IntParse(#[from] core::num::ParseIntError),
 }
 
 /// Axis marker for displacement calculation.
@@ -38,7 +62,7 @@ impl Displacement {
     /// Convert millimeters to a displacement. Returns an error if the input is out of range.
     pub fn from_mm(d: f32, axis: Axis, cfg: &SystemConfig) -> Result<Self, Error> {
         if !defaults::MM_DISP_RANGE.contains(&d) {
-            return Err(Error::OutOfRange);
+            return Err(Error::DisplacementRange);
         }
 
         let steps = match axis {
@@ -50,7 +74,7 @@ impl Displacement {
         match cfg.frame {
             Frame::Absolute => {
                 if steps < 0 {
-                    Err(Error::OutOfRange)
+                    Err(Error::DisplacementRange)
                 } else {
                     Ok(Self::Absolute(steps))
                 }
@@ -62,13 +86,13 @@ impl Displacement {
     /// Convert steps to a displacement. Returns an error if the input is out of range.
     pub fn from_steps(d: i32, cfg: &SystemConfig) -> Result<Self, Error> {
         if !defaults::STEP_DISP_RANGE.contains(&d) {
-            return Err(Error::OutOfRange);
+            return Err(Error::DisplacementRange);
         }
 
         match cfg.frame {
             Frame::Absolute => {
                 if d < 0 {
-                    Err(Error::OutOfRange)
+                    Err(Error::DisplacementRange)
                 } else {
                     Ok(Self::Absolute(d))
                 }

@@ -19,7 +19,7 @@ pub enum Frame {
 }
 
 /// Unit of measurement for displacement.
-#[derive(defmt::Format)]
+#[derive(defmt::Format, PartialEq, Eq)]
 pub enum Unit {
     Steps,
     Millimeters,

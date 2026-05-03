@@ -1,5 +1,4 @@
 //! Trapezoidal motion profiles
-
 use crate::{Error, prof::Profile};
 
 /// Representation of the current motion phase

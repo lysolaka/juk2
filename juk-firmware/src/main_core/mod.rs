@@ -1,3 +1,4 @@
+//! Code running on the main core
 use embassy_executor::Spawner;
 
 use crate::{ComResources, LedResources};

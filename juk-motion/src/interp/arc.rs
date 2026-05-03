@@ -1,5 +1,4 @@
 //! Arc interpolator using a rotation matrix
-
 use core::iter::FlatMap;
 
 use crate::{

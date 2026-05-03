@@ -1,5 +1,4 @@
 //! The flat motion profile
-
 use crate::{Error, prof::Profile};
 
 /// A constant velocity motion profile.

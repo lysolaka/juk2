@@ -1,5 +1,4 @@
 //! A linebuffer implementation with support for UTF-8.
-
 use alloc::string::String;
 use core::mem;
 
@@ -64,7 +63,7 @@ impl LineBuffer {
     ///
     /// # Warning
     ///
-    /// Since the resulting string is stripped, the position returned by 
+    /// Since the resulting string is stripped, the position returned by
     /// [`LineBuffer::cursor_pos()`] or [`LineBuffer::cursor_char_pos()`] is not valid for it.
     pub fn take(&mut self) -> String {
         // strip in place, adapted from: https://docs.rs/string_more/latest/src/string_more/lib.rs.html#524

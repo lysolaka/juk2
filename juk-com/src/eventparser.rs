@@ -1,5 +1,4 @@
 //! Utilities related to input parsing using [`vte`].
-
 use vte::{Params, Parser, Perform};
 
 /// An event output from [`vte::Parser`].

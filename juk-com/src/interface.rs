@@ -1,5 +1,4 @@
 //! The [`Interface`] struct implementation.
-
 use alloc::{string::String, vec::Vec};
 use core::mem;
 
@@ -83,7 +82,6 @@ impl Interface {
     pub fn linebuffer(&self) -> &str {
         self.line.as_str()
     }
-
 
     /// Wait for an input event.
     ///

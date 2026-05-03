@@ -1,3 +1,4 @@
+//! Code running on the second core (app core)
 use embassy_executor::Spawner;
 
 use crate::{LimitsResources, MotorResources};

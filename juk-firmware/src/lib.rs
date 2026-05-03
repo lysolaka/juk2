@@ -1,12 +1,13 @@
 #![no_std]
-extern crate alloc;
 
-use esp_hal::peripherals::*;
+extern crate alloc;
 
 pub mod app_core;
 pub mod main_core;
 
 pub mod strings;
+
+use esp_hal::peripherals::*;
 
 // to keep the code "clean" we need to define the resources struct again for the sake of making it
 // visible to the entire crate, not just the main function

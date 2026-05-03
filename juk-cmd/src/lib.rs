@@ -12,7 +12,7 @@ pub use parser::parse_cmd;
 
 use serde::{Deserialize, Serialize};
 
-use config::{Frame, SystemConfig};
+use crate::config::{Frame, SystemConfig};
 
 /// Errors, which can be encountered when using `juk-cmd`.
 #[derive(Debug, thiserror::Error)]

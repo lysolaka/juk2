@@ -1,5 +1,4 @@
 //! A circular history buffer implementation.
-
 use alloc::string::{String, ToString};
 
 use circular_buffer::CircularBuffer;

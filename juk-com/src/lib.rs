@@ -2,7 +2,6 @@
 //!
 //! Implements the [`Interface`] struct meant to handle control input and the [`Terminal`] trait
 //! used to perform actions required by [`Interface`].
-
 #![no_std]
 
 extern crate alloc;

@@ -1,5 +1,4 @@
 //! 3D line interpolator based on the Bresenham's algorithm
-
 use crate::{Error, interp::Step};
 
 #[derive(defmt::Format)]

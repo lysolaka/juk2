@@ -1,5 +1,4 @@
 //! [`Terminal`] trait helper for use with [`crate::Interface`].
-
 use esp_hal::uart::{IoError, Uart};
 
 /// Terminal trait used to implement the REPL interface.

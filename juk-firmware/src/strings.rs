@@ -1,3 +1,4 @@
+//! Builtin strings
 use const_format::{concatcp, formatcp};
 
 shadow_rs::shadow!(build);

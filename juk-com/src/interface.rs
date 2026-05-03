@@ -1,7 +1,10 @@
 //! The [`Interface`] struct implementation.
 
-use alloc::vec::Vec;
+use alloc::{string::String, vec::Vec};
 use core::mem;
+
+use const_format::concatcp;
+use embassy_futures::select::{Either, select};
 
 use crate::{
     Input,
@@ -11,11 +14,21 @@ use crate::{
     linebuffer::LineBuffer,
 };
 
+const INFO: &str = "\x1b[1;32m*\x1b[0m ";
+const WHITE: &str = "\x1b[1;37m";
+const CLEAR: &str = "\x1b[0m";
+
 /// The message to display when switching to text mode.
-const MOTD_TEXT: &'static str = "\r\n\x1b[1;32m*\x1b[0m Switching to text mode\r\n";
+#[rustfmt::skip]
+const TEXT_SWITCH: &str = concatcp!("\r\n", INFO, "Switching to text mode\r\n");
 
 /// The message to display when switching to binary mode.
-const MOTD_BINARY: &'static str = "\r\n\x1b[1;32m*\x1b[0m Switching to binary mode\r\n\x1b[1;32m*\x1b[0m Press \x1b[1;37mCTRL + Space\x1b[0m once or twice to leave\r\n";
+#[rustfmt::skip]
+const BINARY_SWITCH: &str = concatcp!(
+    "\r\n",
+    INFO, "Switching to binary mode\r\n",
+    INFO, "Press ", WHITE, "CTRL + Space", CLEAR, " once or twice to leave\r\n"
+);
 
 /// The operating mode of [`Interface`].
 ///
@@ -66,6 +79,12 @@ impl Interface {
         }
     }
 
+    /// Get the contents of the linebuffer as they are stored there (not trimmed).
+    pub fn linebuffer(&self) -> &str {
+        self.line.as_str()
+    }
+
+
     /// Wait for an input event.
     ///
     /// The parser does not do any work, when this function is not running. The function will return
@@ -83,6 +102,49 @@ impl Interface {
         }
     }
 
+    /// Wait for an input event while being able to print asynchronous output.
+    ///
+    /// This is most useful if other tasks want to print to the terminal while the user is typing.
+    /// `async_out` is a future, which might produce the [`String`] to be printed, `prompt` is the
+    /// current terminal prompt (used in case an output came and there's a need to redraw the line).
+    ///
+    /// Otherwise this method is similar to [`Interface::get_input()`].
+    pub async fn get_input_async_out<T, F, Fut>(
+        &mut self,
+        terminal: &mut T,
+        mut async_out: F,
+        prompt: &str,
+    ) -> Result<Input, T::Error>
+    where
+        T: Terminal,
+        F: FnMut() -> Fut,
+        Fut: Future<Output = String>,
+    {
+        loop {
+            match select(terminal.read_byte(), async_out()).await {
+                Either::First(Ok(byte)) => {
+                    if let Some(input) = match self.mode {
+                        InterfaceMode::Binary => self.binary_dispatch(byte, terminal).await?,
+                        InterfaceMode::Text => self.text_dispatch(byte, terminal).await?,
+                    } {
+                        return Ok(input);
+                    }
+                }
+                Either::First(Err(e)) => return Err(e),
+                Either::Second(s) => {
+                    terminal.write(b"\r").await?;
+                    terminal.clear_eol().await?;
+                    terminal.write(s.as_bytes()).await?;
+                    if self.mode == InterfaceMode::Text {
+                        terminal.write(prompt.as_bytes()).await?;
+                        self.redraw_line(terminal).await?;
+                    }
+                    terminal.flush().await?;
+                }
+            }
+        }
+    }
+
     /// Dispatch a byte in the binary state.
     #[inline]
     async fn binary_dispatch<T: Terminal>(
@@ -93,7 +155,7 @@ impl Interface {
         if byte == 0x00 {
             if self.binary_buf.is_empty() {
                 defmt::debug!("Binary mode got an empty frame, switching input mode to text");
-                terminal.write(MOTD_TEXT.as_bytes()).await?;
+                terminal.write(TEXT_SWITCH.as_bytes()).await?;
                 self.mode = InterfaceMode::Text;
                 Ok(Some(Input::EndOfText))
             } else {
@@ -120,7 +182,7 @@ impl Interface {
 
             if self.parser.terminated() {
                 defmt::debug!("Text mode parser terminated, switching input mode to binary");
-                terminal.write(MOTD_BINARY.as_bytes()).await?;
+                terminal.write(BINARY_SWITCH.as_bytes()).await?;
                 self.parser.unterminate();
                 self.mode = InterfaceMode::Binary;
             }
@@ -139,6 +201,10 @@ impl Interface {
         terminal: &mut T,
     ) -> Result<Option<Input>, T::Error> {
         match event {
+            Event::Print(c) if c == '?' => {
+                terminal.write(b"\r\n").await?;
+                Ok(Some(Input::Help))
+            }
             Event::Print(c) => {
                 self.history.reset_view();
                 self.line.insert_char(c);

@@ -15,13 +15,17 @@ esp-hal = { version = "~1.0", features = ["defmt", "esp32s3", "psram", "unstable
 esp-rtos = { version = "0.2", features = ["embassy", "esp32s3"] }
 shadow-rs = { version = "1.7", default-features = false }
 
+const_format = "0.2"
 critical-section = "1.2"
 defmt = "1.0"
 embassy-executor = "0.9"
+embassy-futures = "0.1"
+embassy-sync = "0.8"
 embassy-time = "0.5"
 esp-alloc = "0.9"
 static_cell = "2.1"
 
+juk-cmd = { path = "../juk-cmd" }
 juk-com = { path = "../juk-com" }
 juk-led = { path = "../juk-led" }
 juk-motion = { path = "../juk-motion" }

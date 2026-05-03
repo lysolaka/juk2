@@ -15,7 +15,11 @@ pub async fn main(
     let (_, _) = (limits, motor);
 
     loop {
-        // defmt::info!("Hello from the application core!");
-        embassy_time::Timer::after_secs(5).await;
+        embassy_time::Timer::after_secs(60).await;
+        let s = alloc::format!(
+            "{}Some random info message! Hope it didn't interrupt you\r\n",
+            crate::strings::INFO
+        );
+        crate::TEST_CH.send(s).await;
     }
 }

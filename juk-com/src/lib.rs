@@ -26,6 +26,10 @@ pub enum Input {
     ///
     /// The payload is a stripped string.
     Text(String),
+    /// The `?` was recieved.
+    ///
+    /// The executor should display help.
+    Help,
     /// CTRL + G was pressed.
     Bell,
     /// CTRL + X was pressed.

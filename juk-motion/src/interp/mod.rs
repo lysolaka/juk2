@@ -3,17 +3,21 @@
 mod arc;
 mod line;
 
-pub use line::LineGenerator;
 pub use arc::ArcGenerator;
+pub use line::LineGenerator;
 
 use esp_hal::gpio::Level;
+use serde::{Deserialize, Serialize};
 
 /// Describes whether to do a step, and if yes, what direction the step should be.
+///
+/// The `repr` of this type is [`i32`] so it can be used to modify the step position variable directly.
 #[derive(Clone, Copy, PartialEq, Eq, defmt::Format)]
+#[repr(i32)]
 pub enum Step {
-    Positive,
-    None,
-    Negative,
+    Positive = 1,
+    None = 0,
+    Negative = -1,
 }
 
 impl Step {
@@ -46,10 +50,10 @@ impl Step {
 }
 
 /// Arc direction for the [`ArcGenerator`].
-#[derive(defmt::Format)]
+#[derive(defmt::Format, Deserialize, Serialize)]
 pub enum ArcDir {
-    /// Clockwise
-    CW,
-    /// Counter-clockwise
-    CCW,
+    /// Clockwise (negative angle)
+    Neg,
+    /// Anti-clockwise (positive angle)
+    Pos,
 }

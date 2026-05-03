@@ -11,8 +11,9 @@ pub const STEP_DISP_RANGE: RangeInclusive<i32> = -50_000..=50_000;
 
 pub const MOTION_ARG_RANGE: RangeInclusive<f32> = 0.0..=50_000.0;
 
-impl Default for SystemConfig {
-    fn default() -> Self {
+// we need a const default, sorry ...
+impl SystemConfig {
+    pub const fn const_default() -> Self {
         Self {
             accel: 12500.0,
             vel: 6000.0,
@@ -21,5 +22,11 @@ impl Default for SystemConfig {
             mmps: (0.0125625, 0.0125625, 0.0125625),
             led: 0x00ff00,
         }
+    }
+}
+
+impl Default for SystemConfig {
+    fn default() -> Self {
+        SystemConfig::const_default()
     }
 }

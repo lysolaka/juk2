@@ -12,14 +12,14 @@ pub struct SystemConfig {
 }
 
 /// Reference frame for movements.
-#[derive(defmt::Format)]
+#[derive(defmt::Format, Clone, Copy)]
 pub enum Frame {
     Absolute,
     Relative,
 }
 
 /// Unit of measurement for displacement.
-#[derive(defmt::Format, PartialEq, Eq)]
+#[derive(defmt::Format, Clone, Copy, PartialEq, Eq)]
 pub enum Unit {
     Steps,
     Millimeters,

@@ -1297,7 +1297,7 @@ dependencies = [
 
 [[package]]
 name = "juk-cmd"
-version = "0.1.0-dev.5"
+version = "0.1.0-dev.6"
 dependencies = [
  "const_format",
  "defmt 1.0.1",
@@ -1309,7 +1309,7 @@ dependencies = [
 
 [[package]]
 name = "juk-com"
-version = "0.1.0-dev.5"
+version = "0.1.0-dev.6"
 dependencies = [
  "circular-buffer",
  "const_format",
@@ -1322,7 +1322,7 @@ dependencies = [
 
 [[package]]
 name = "juk-firmware"
-version = "0.1.0-dev.5"
+version = "0.1.0-dev.6"
 dependencies = [
  "const_format",
  "critical-section",
@@ -1347,7 +1347,7 @@ dependencies = [
 
 [[package]]
 name = "juk-led"
-version = "0.1.0-dev.5"
+version = "0.1.0-dev.6"
 dependencies = [
  "defmt 1.0.1",
  "esp-hal",
@@ -1355,7 +1355,7 @@ dependencies = [
 
 [[package]]
 name = "juk-motion"
-version = "0.1.0-dev.5"
+version = "0.1.0-dev.6"
 dependencies = [
  "defmt 1.0.1",
  "esp-hal",

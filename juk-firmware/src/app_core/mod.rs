@@ -14,12 +14,5 @@ pub async fn main(
     // discard warnings
     let (_, _) = (limits, motor);
 
-    loop {
-        embassy_time::Timer::after_secs(60).await;
-        let s = alloc::format!(
-            "{}Some random info message! Hope it didn't interrupt you\r\n",
-            crate::strings::INFO
-        );
-        crate::TEST_CH.send(s).await;
-    }
+    loop {}
 }

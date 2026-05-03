@@ -5,6 +5,7 @@ extern crate alloc;
 pub mod app_core;
 pub mod main_core;
 
+pub mod global;
 pub mod strings;
 
 use esp_hal::peripherals::*;

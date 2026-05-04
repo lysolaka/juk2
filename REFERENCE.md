@@ -144,7 +144,7 @@ While the interface is in text mode, the following key combinations are recognis
 - `?`: Displays help based on the current command, if the command name is not entered, displays the command list
 - `CTRL + X`: Cancels the current movement and flushes the execution queue
 - `CTRL + C`: Cancels the current input at the command line
-- `CTRL + D`: If the command line is empty, issues a software reset
+- `CTRL + D`: Issues a software reset
 - `CTRL + Space`: Switch between text mode and binary mode
 - `CTRL + G`: Easter egg
 

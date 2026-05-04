@@ -29,7 +29,6 @@ pub async fn led_control(led: LedResources<'static>) -> ! {
 
     loop {
         let (r, g, b) = global::LED.wait().await;
-        defmt::info!("Setting LED color to: ({=u8:02x}, {=u8:02x}, {=u8:02x})", r, g, b);
         led.set_color(r, g, b);
     }
 }

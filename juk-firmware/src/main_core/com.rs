@@ -1,5 +1,9 @@
 //! Communication interface controller
+use alloc::format;
+
 use esp_hal::uart::{Config, DataBits, Parity, StopBits, Uart};
+
+use juk_cmd::parse_cmd;
 use juk_com::{Input, Interface, Terminal};
 
 use crate::{ComResources, global, strings};
@@ -45,8 +49,57 @@ pub async fn com_control(com: ComResources<'static>) -> ! {
         {
             Ok(input) => {
                 match input {
-                    Input::Binary(items) => defmt::todo!(),
-                    Input::Text(text) => defmt::todo!(),
+                    Input::Binary(mut bytes) => {
+                        match postcard::from_bytes_cobs::<juk_cmd::cmd::Command>(&mut bytes) {
+                            Ok(cmd) => {
+                                defmt::info!("Executing: {:?}", cmd);
+                                // TODO: execute
+                            }
+                            Err(e) => {
+                                defmt::error!("Error deserializing binary data: {}", e);
+                                global::LED.signal((0xff, 0x00, 0x00));
+                            }
+                        }
+                    }
+                    Input::Text(text) => {
+                        // acquire the configuration and parse the command
+                        let res = {
+                            let cfg = global::SYSCFG.lock().await;
+                            parse_cmd(&text, &cfg)
+                        };
+                        // the rationale is that the command executor will acquire the configuration
+                        // only when it needs to
+
+                        match res {
+                            Ok(cmd) => {
+                                defmt::info!("Executing: {:?}", cmd);
+                                // TODO: execute
+                            }
+                            Err(e) => {
+                                defmt::warn!(
+                                    "Error parsing `{}`: {}",
+                                    text.as_str(),
+                                    defmt::Display2Format(&e)
+                                );
+
+                                // print just the command name, fallback to the full command
+                                let cmd = if let Some(s) = text.split_ascii_whitespace().next() {
+                                    s
+                                } else {
+                                    &text
+                                };
+                                // format the error message
+                                let msg = format!("{}{}: {}\r\n", strings::ERROR, cmd, e);
+                                twrite!(msg);
+                            }
+                        }
+                        // redraw the prompt
+                        twrite!("$ ");
+                        // redraw the linebuffer
+                        if let Err(e) = interface.redraw_line(&mut uart).await {
+                            defmt::error!("UART error: {}", e);
+                        }
+                    }
                     Input::Help => {
                         // get the stuff on the command line
                         let mut tokens = interface.linebuffer().trim().split_ascii_whitespace();

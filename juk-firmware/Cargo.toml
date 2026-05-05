@@ -13,6 +13,7 @@ esp-backtrace = { version = "0.18", features = ["defmt", "esp32s3", "panic-handl
 esp-bootloader-esp-idf = { version = "0.4", features = ["esp32s3"] }
 esp-hal = { version = "~1.0", features = ["defmt", "esp32s3", "psram", "unstable"] }
 esp-rtos = { version = "0.2", features = ["embassy", "esp32s3"] }
+postcard = { version = "1.1", default-features = false, features = ["use-defmt"] }
 shadow-rs = { version = "1.7", default-features = false }
 
 const_format = "0.2"

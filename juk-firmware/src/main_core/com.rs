@@ -47,7 +47,26 @@ pub async fn com_control(com: ComResources<'static>) -> ! {
                 match input {
                     Input::Binary(items) => defmt::todo!(),
                     Input::Text(text) => defmt::todo!(),
-                    Input::Help => defmt::todo!(),
+                    Input::Help => {
+                        // get the stuff on the command line
+                        let mut tokens = interface.linebuffer().trim().split_ascii_whitespace();
+                        match tokens.next() {
+                            // if there is a known command display help for it
+                            Some("move") => twrite!(strings::help::MOVE),
+                            Some("arc") => twrite!(strings::help::ARC),
+                            Some("home") => twrite!(strings::help::HOME),
+                            Some("set") => twrite!(strings::help::SET),
+                            Some("get") => twrite!(strings::help::GET),
+                            // if not, display a list of commands
+                            _ => twrite!(strings::help::LIST),
+                        }
+                        // redraw the prompt
+                        twrite!("$ ");
+                        // redraw the linebuffer
+                        if let Err(e) = interface.redraw_line(&mut uart).await {
+                            defmt::error!("UART error: {}", e);
+                        }
+                    }
                     Input::Bell => {
                         defmt::info!("Running an easter egg, enjoy :)");
                         global::EGG.signal(());

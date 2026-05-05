@@ -1,5 +1,5 @@
 //! Public signals, channels and synchronization
-use alloc::string::String;
+use alloc::vec::Vec;
 
 use juk_cmd::config::SystemConfig;
 
@@ -21,4 +21,4 @@ pub static LED: Signal<CriticalSectionRawMutex, (u8, u8, u8)> = Signal::new();
 pub static EGG: Signal<CriticalSectionRawMutex, ()> = Signal::new();
 
 /// Terminal async output stream
-pub static TERMINAL: Channel<CriticalSectionRawMutex, String, 4> = Channel::new();
+pub static TERMINAL: Channel<CriticalSectionRawMutex, Vec<u8>, 4> = Channel::new();

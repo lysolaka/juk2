@@ -1,5 +1,5 @@
 //! The [`Interface`] struct implementation.
-use alloc::{string::String, vec::Vec};
+use alloc::vec::Vec;
 use core::mem;
 
 use const_format::concatcp;
@@ -116,7 +116,7 @@ impl Interface {
     where
         T: Terminal,
         F: FnMut() -> Fut,
-        Fut: Future<Output = String>,
+        Fut: Future<Output = Vec<u8>>,
     {
         loop {
             match select(terminal.read_byte(), async_out()).await {
@@ -130,10 +130,10 @@ impl Interface {
                 }
                 Either::First(Err(e)) => return Err(e),
                 Either::Second(s) => {
-                    terminal.write(b"\r").await?;
-                    terminal.clear_eol().await?;
-                    terminal.write(s.as_bytes()).await?;
                     if self.mode == InterfaceMode::Text {
+                        terminal.write(b"\r").await?;
+                        terminal.clear_eol().await?;
+                        terminal.write(&s).await?;
                         terminal.write(prompt.as_bytes()).await?;
                         self.redraw_line(terminal).await?;
                     }

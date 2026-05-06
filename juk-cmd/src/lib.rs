@@ -5,7 +5,7 @@ extern crate alloc;
 
 pub mod cmd;
 pub mod config;
-mod defaults;
+pub mod defaults;
 mod parser;
 
 pub use parser::parse_cmd;

@@ -1,4 +1,5 @@
 //! System configuration
+use serde::{Deserialize, Serialize};
 
 /// Configuration structure for the system.
 #[derive(defmt::Format)]
@@ -13,16 +14,15 @@ pub struct SystemConfig {
 }
 
 /// Reference frame for movements.
-#[derive(defmt::Format, Clone, Copy)]
+#[derive(defmt::Format, Deserialize, Serialize, Clone, Copy)]
 pub enum Frame {
     Absolute,
     Relative,
 }
 
 /// Unit of measurement for displacement.
-#[derive(defmt::Format, Clone, Copy, PartialEq, Eq)]
+#[derive(defmt::Format, Deserialize, Serialize, Clone, Copy, PartialEq, Eq)]
 pub enum Unit {
     Steps,
     Millimeters,
 }
-

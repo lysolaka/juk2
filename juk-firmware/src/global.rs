@@ -1,5 +1,6 @@
 //! Public signals, channels and synchronization
 use alloc::vec::Vec;
+use core::cell::RefCell;
 
 use juk_cmd::{cmd::Command, config::SystemConfig};
 
@@ -49,4 +50,10 @@ pub static CANCEL: Signal<CriticalSectionRawMutex, ()> = Signal::new();
 pub static MOVEMENT: Channel<CriticalSectionRawMutex, Command, 8> = Channel::new();
 
 /// Limit switch status
-pub static LIMITS: cs::Mutex<LimitStatus> = cs::Mutex::new(LimitStatus::empty());
+pub static LIMITS: cs::Mutex<RefCell<LimitStatus>> = cs::Mutex::new(RefCell::new(LimitStatus::empty()));
+
+/// End-effector position in steps
+///
+/// Note: It has to be `i32` insted of `u32` to allow subtraction. `i32` holds the entire range
+/// anyways, just keep it positive
+pub static POS: cs::Mutex<RefCell<(i32, i32, i32)>> = cs::Mutex::new(RefCell::new((0, 0, 0)));

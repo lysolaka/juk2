@@ -52,7 +52,6 @@ pub async fn com_control(com: ComResources<'static>) -> ! {
                     Input::Binary(mut bytes) => {
                         match postcard::from_bytes_cobs::<juk_cmd::cmd::Command>(&mut bytes) {
                             Ok(cmd) => {
-                                defmt::info!("Executing: {:?}", cmd);
                                 // TODO: execute
                             }
                             Err(e) => {
@@ -72,7 +71,6 @@ pub async fn com_control(com: ComResources<'static>) -> ! {
 
                         match res {
                             Ok(cmd) => {
-                                defmt::info!("Executing: {:?}", cmd);
                                 // TODO: execute
                             }
                             Err(e) => {
@@ -131,7 +129,7 @@ pub async fn com_control(com: ComResources<'static>) -> ! {
                         }
                     }
                     Input::Cancel => {
-                        defmt::warn!("Sending a cancel signal");
+                        defmt::warn!("Sending a cancel signal and flushing the queue");
                         // send the signal
                         global::CANCEL.signal(());
                         // flush the queue

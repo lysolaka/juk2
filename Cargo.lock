@@ -1356,6 +1356,7 @@ dependencies = [
 name = "juk-firmware"
 version = "0.1.0-dev.6"
 dependencies = [
+ "bitflags 2.11.1",
  "const_format",
  "critical-section",
  "defmt 1.0.1",

@@ -16,6 +16,7 @@ esp-rtos = { version = "0.2", features = ["embassy", "esp32s3"] }
 postcard = { version = "1.1", default-features = false, features = ["use-defmt"] }
 shadow-rs = { version = "1.7", default-features = false }
 
+bitflags = "2.11"
 const_format = "0.2"
 critical-section = "1.2"
 defmt = "1.0"

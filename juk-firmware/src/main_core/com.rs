@@ -132,13 +132,14 @@ pub async fn com_control(com: ComResources<'static>) -> ! {
                     }
                     Input::Cancel => {
                         defmt::warn!("Sending a cancel signal");
+                        // send the signal
+                        global::CANCEL.signal(());
                         // redraw the prompt
                         twrite!(strings::PROMPT);
                         // redraw the linebuffer
                         if let Err(e) = interface.redraw_line(&mut uart).await {
                             defmt::error!("UART error: {}", e);
                         }
-                        // TODO: send it
                     }
                     Input::EndOfText => {
                         // redraw the prompt

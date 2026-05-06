@@ -4,7 +4,7 @@ use alloc::format;
 use esp_hal::uart::{Config, DataBits, Parity, StopBits, Uart};
 
 use juk_cmd::parse_cmd;
-use juk_com::{Input, Interface, Terminal};
+use juk_com::{Input, Interface, InterfaceMode, Terminal};
 
 use crate::{ComResources, global, strings};
 
@@ -152,6 +152,21 @@ pub async fn com_control(com: ComResources<'static>) -> ! {
                         // do a software reset
                         defmt::warn!("CTRL + D was pressed, rebooting...");
                         esp_hal::system::software_reset();
+                    }
+                    Input::ModeChange(mode) => {
+                        match mode {
+                            // signal the change by setting the LED to magenta
+                            InterfaceMode::Binary => global::LED.signal((0xff, 0x00, 0xff)),
+                            // if entering text mode redraw stuff
+                            InterfaceMode::Text => {
+                                twrite!(strings::PROMPT);
+                                if let Err(e) = interface.redraw_line(&mut uart).await {
+                                    defmt::error!("UART error: {}", e);
+                                }
+                                // signal the change by setting the LED to green
+                                global::LED.signal((0x00, 0xff, 0x00));
+                            }
+                        }
                     }
                 }
             }

@@ -33,7 +33,7 @@ const BINARY_SWITCH: &str = concatcp!(
 ///
 /// Used to track state of the [`Interface`] state machine.
 #[derive(Clone, Copy, PartialEq, Eq)]
-enum InterfaceMode {
+pub enum InterfaceMode {
     Binary,
     Text,
 }
@@ -155,7 +155,7 @@ impl Interface {
                 defmt::debug!("Binary mode got an empty frame, switching input mode to text");
                 terminal.write(TEXT_SWITCH.as_bytes()).await?;
                 self.mode = InterfaceMode::Text;
-                Ok(Some(Input::EndOfText))
+                Ok(Some(Input::ModeChange(InterfaceMode::Text)))
             } else {
                 self.binary_buf.push(byte);
                 let bytes = mem::replace(&mut self.binary_buf, Vec::with_capacity(128));
@@ -183,9 +183,10 @@ impl Interface {
                 terminal.write(BINARY_SWITCH.as_bytes()).await?;
                 self.parser.unterminate();
                 self.mode = InterfaceMode::Binary;
+                Ok(Some(Input::ModeChange(InterfaceMode::Binary)))
+            } else {
+                Ok(input)
             }
-
-            Ok(input)
         } else {
             Ok(None)
         }

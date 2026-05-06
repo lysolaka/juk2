@@ -40,11 +40,11 @@ pub async fn com_control(com: ComResources<'static>) -> ! {
     twrite!(strings::VERSION);
     twrite!("\r\n");
     twrite!(strings::WELCOME);
-    twrite!("$ ");
+    twrite!(strings::PROMPT);
 
     loop {
         match interface
-            .get_input_async_out(&mut uart, || global::TERMINAL.receive(), "$ ")
+            .get_input_async_out(&mut uart, || global::TERMINAL.receive(), strings::PROMPT)
             .await
         {
             Ok(input) => {
@@ -94,7 +94,7 @@ pub async fn com_control(com: ComResources<'static>) -> ! {
                             }
                         }
                         // redraw the prompt
-                        twrite!("$ ");
+                        twrite!(strings::PROMPT);
                         // redraw the linebuffer
                         if let Err(e) = interface.redraw_line(&mut uart).await {
                             defmt::error!("UART error: {}", e);
@@ -114,7 +114,7 @@ pub async fn com_control(com: ComResources<'static>) -> ! {
                             _ => twrite!(strings::help::LIST),
                         }
                         // redraw the prompt
-                        twrite!("$ ");
+                        twrite!(strings::PROMPT);
                         // redraw the linebuffer
                         if let Err(e) = interface.redraw_line(&mut uart).await {
                             defmt::error!("UART error: {}", e);
@@ -124,7 +124,7 @@ pub async fn com_control(com: ComResources<'static>) -> ! {
                         defmt::info!("Running an easter egg, enjoy :)");
                         global::EGG.signal(());
                         // redraw the prompt
-                        twrite!("$ ");
+                        twrite!(strings::PROMPT);
                         // redraw the linebuffer
                         if let Err(e) = interface.redraw_line(&mut uart).await {
                             defmt::error!("UART error: {}", e);
@@ -133,7 +133,7 @@ pub async fn com_control(com: ComResources<'static>) -> ! {
                     Input::Cancel => {
                         defmt::warn!("Sending a cancel signal");
                         // redraw the prompt
-                        twrite!("$ ");
+                        twrite!(strings::PROMPT);
                         // redraw the linebuffer
                         if let Err(e) = interface.redraw_line(&mut uart).await {
                             defmt::error!("UART error: {}", e);
@@ -142,7 +142,7 @@ pub async fn com_control(com: ComResources<'static>) -> ! {
                     }
                     Input::EndOfText => {
                         // redraw the prompt
-                        twrite!("$ ");
+                        twrite!(strings::PROMPT);
                         // redraw the linebuffer
                         if let Err(e) = interface.redraw_line(&mut uart).await {
                             defmt::error!("UART error: {}", e);

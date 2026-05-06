@@ -13,6 +13,9 @@ pub const ERROR: &str = "\x1b[1;31m*\x1b[0m ";
 const WHITE: &str = "\x1b[1;37m";
 const CLEAR: &str = "\x1b[0m";
 
+/// Prompt for the CLI.
+pub const PROMPT: &str = concatcp!("JUK2 ", WHITE, "$", CLEAR, " ");
+
 const VERSION_VER: &str = formatcp!(
     "{}: {} ({})\r\n",
     build::PROJECT_NAME,

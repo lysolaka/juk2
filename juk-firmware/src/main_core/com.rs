@@ -134,6 +134,8 @@ pub async fn com_control(com: ComResources<'static>) -> ! {
                         defmt::warn!("Sending a cancel signal");
                         // send the signal
                         global::CANCEL.signal(());
+                        // flush the queue
+                        global::MOVEMENT.clear();
                         // redraw the prompt
                         twrite!(strings::PROMPT);
                         // redraw the linebuffer

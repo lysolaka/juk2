@@ -14,6 +14,7 @@ use embassy_sync::{
 
 bitflags::bitflags! {
     /// Limit switch status type
+    #[derive(Clone, Copy)]
     pub struct LimitStatus: u8 {
         /// +X axis
         const PX = 0b000001;

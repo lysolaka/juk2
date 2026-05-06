@@ -6,7 +6,7 @@ use esp_hal::uart::{Config, DataBits, Parity, StopBits, Uart};
 use juk_cmd::parse_cmd;
 use juk_com::{Input, Interface, InterfaceMode, Terminal};
 
-use crate::{ComResources, global, strings};
+use crate::{ComResources, exec, global, strings};
 
 #[embassy_executor::task]
 pub async fn com_control(com: ComResources<'static>) -> ! {
@@ -50,9 +50,26 @@ pub async fn com_control(com: ComResources<'static>) -> ! {
             Ok(input) => {
                 match input {
                     Input::Binary(mut bytes) => {
-                        match postcard::from_bytes_cobs::<juk_cmd::cmd::Command>(&mut bytes) {
+                        match postcard::from_bytes_cobs(&mut bytes) {
                             Ok(cmd) => {
-                                // TODO: execute
+                                // run the command and send back the result
+                                if let Some(resp) = exec::run_binary(cmd).await {
+                                    let mut buf = [0; 32];
+                                    match postcard::to_slice_cobs(&resp, &mut buf) {
+                                        Ok(data) => defmt::expect!(
+                                            <Uart<'_, esp_hal::Async> as Terminal>::write(
+                                                &mut uart, data
+                                            )
+                                            .await,
+                                            "UART write failed"
+                                        ),
+                                        Err(e) => {
+                                            defmt::error!("Response serialization failed: {}", e);
+                                            // nuke the receiver
+                                            twrite!("\0\0");
+                                        }
+                                    };
+                                }
                             }
                             Err(e) => {
                                 defmt::error!("Error deserializing binary data: {}", e);
@@ -71,7 +88,10 @@ pub async fn com_control(com: ComResources<'static>) -> ! {
 
                         match res {
                             Ok(cmd) => {
-                                // TODO: execute
+                                // run the command and print its output
+                                if let Some(text) = exec::run_text(cmd).await {
+                                    twrite!(&text);
+                                }
                             }
                             Err(e) => {
                                 defmt::warn!(

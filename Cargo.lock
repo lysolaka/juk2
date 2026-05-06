@@ -1332,6 +1332,7 @@ version = "0.1.0-dev.6"
 dependencies = [
  "const_format",
  "defmt 1.0.1",
+ "juk-com",
  "juk-motion",
  "libm",
  "serde",

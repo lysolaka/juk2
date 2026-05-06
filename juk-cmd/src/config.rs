@@ -8,6 +8,7 @@ pub struct SystemConfig {
     pub frame: Frame,
     pub unit: Unit,
     pub mmps: (f32, f32, f32),
+    pub mode: juk_com::InterfaceMode,
     pub led: u32,
 }
 

@@ -155,13 +155,27 @@ pub async fn com_control(com: ComResources<'static>) -> ! {
                     }
                     Input::ModeChange(mode) => {
                         match mode {
-                            // signal the change by setting the LED to magenta
-                            InterfaceMode::Binary => global::LED.signal((0xff, 0x00, 0xff)),
+                            InterfaceMode::Binary => {
+                                // change the mode global variable
+                                {
+                                    let mut cfg = global::SYSCFG.lock().await;
+                                    cfg.mode = InterfaceMode::Binary;
+                                    cfg.led = 0xff00ff;
+                                }
+                                // signal the change by setting the LED to magenta
+                                global::LED.signal((0xff, 0x00, 0xff))
+                            }
                             // if entering text mode redraw stuff
                             InterfaceMode::Text => {
                                 twrite!(strings::PROMPT);
                                 if let Err(e) = interface.redraw_line(&mut uart).await {
                                     defmt::error!("UART error: {}", e);
+                                }
+                                // change the mode global variable
+                                {
+                                    let mut cfg = global::SYSCFG.lock().await;
+                                    cfg.mode = InterfaceMode::Text;
+                                    cfg.led = 0x00ff00;
                                 }
                                 // signal the change by setting the LED to green
                                 global::LED.signal((0x00, 0xff, 0x00));

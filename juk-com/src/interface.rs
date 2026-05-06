@@ -32,7 +32,7 @@ const BINARY_SWITCH: &str = concatcp!(
 /// The operating mode of [`Interface`].
 ///
 /// Used to track state of the [`Interface`] state machine.
-#[derive(Clone, Copy, PartialEq, Eq)]
+#[derive(defmt::Format, Clone, Copy, PartialEq, Eq)]
 pub enum InterfaceMode {
     Binary,
     Text,

@@ -20,6 +20,7 @@ impl SystemConfig {
             frame: Frame::Relative,
             unit: Unit::Steps,
             mmps: (0.0125625, 0.0125625, 0.0125625),
+            mode: juk_com::InterfaceMode::Text,
             led: 0x00ff00,
         }
     }

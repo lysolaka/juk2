@@ -299,7 +299,7 @@ fn parse_set<'a>(args: impl Iterator<Item = Arg<'a>>) -> Result<Command, Error> 
 
     for arg in args {
         match arg {
-            Arg::KeyValue(k, val) if is_valid_key(k, &KEYS_SET) => {
+            Arg::KeyValue(k, val) => {
                 out.push((k.to_string(), val.to_string()))
             }
             _ => return Err(Error::InvalidArgument),
@@ -319,7 +319,7 @@ fn parse_get<'a>(args: impl Iterator<Item = Arg<'a>>) -> Result<Command, Error> 
 
     for arg in args {
         match arg {
-            Arg::Key(k) if is_valid_key(k, &KEYS_GET) => {
+            Arg::Key(k) => {
                 if out.is_some() {
                     return Err(Error::ArgumentRelation);
                 }
@@ -336,25 +336,4 @@ fn parse_get<'a>(args: impl Iterator<Item = Arg<'a>>) -> Result<Command, Error> 
 
     // we've just checked that it's `Some`
     Ok(Command::ConfigGet { key: out.unwrap() })
-}
-
-const KEYS_SET: [&str; 11] = [
-    "accel", "frame", "led", "mmpsX", "mmpsY", "mmpsZ", "posX", "posY", "posZ", "unit", "vel",
-];
-
-const KEYS_GET: [&str; 17] = [
-    "accel", "frame", "led", "license", "limits", "mmps", "mmpsX", "mmpsY", "mmpsZ", "pos", "posX",
-    "posY", "posZ", "status", "unit", "vel", "version",
-];
-
-// helper to check if a configuration key is valid
-fn is_valid_key(k: &str, keys: &[&str]) -> bool {
-    // use binary search to be faster
-    // (https://doc.rust-lang.org/core/primitive.slice.html#method.contains)
-
-    if let Ok(_) = keys.binary_search(&k) {
-        true
-    } else {
-        false
-    }
 }

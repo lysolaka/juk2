@@ -308,8 +308,6 @@ async fn set_config(kv: Vec<(String, String)>) -> Option<String> {
                 let mut cfg = global::SYSCFG.lock().await;
                 cfg.vel = vel;
             }
-            // NOTE: right now it is unreachable
-            // TODO: edit juk-cmd to allow for any key, since this error message is better
             _ => {
                 return Some(format!(
                     "{}set: unknown key `{}`\r\n",
@@ -474,8 +472,6 @@ async fn get_config(key: String) -> String {
             format!("{}  `vel` = {}\r\n", strings::INFO, vel)
         }
         "version" => strings::VERSION.to_string(),
-        // NOTE: right now it is unreachable
-        // TODO: edit juk-cmd to allow for any key, since this error message is better
         _ => {
             format!("{}get: unknown key `{}`\r\n", strings::ERROR, key.as_str())
         }

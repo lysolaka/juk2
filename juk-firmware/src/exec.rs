@@ -78,12 +78,12 @@ async fn set_config(kv: Vec<(String, String)>) -> Option<String> {
             "led" => {
                 let rgb = match u32::from_str_radix(v.as_str(), 16) {
                     Ok(rgb) if defaults::LED_RANGE.contains(&rgb) => rgb,
-                    Ok(rgb) => {
+                    Ok(_) => {
                         defmt::error!("`set led={}` failed: value out of range", v.as_str());
                         return Some(format!(
-                            "{}set led={:06x}: value out of range\r\n",
+                            "{}set led={}: value out of range\r\n",
                             strings::ERROR,
-                            rgb
+                            v.as_str()
                         ));
                     }
                     Err(e) => {
@@ -101,7 +101,7 @@ async fn set_config(kv: Vec<(String, String)>) -> Option<String> {
                 let g = ((rgb >> 8) & 0xff) as u8;
                 let b = (rgb & 0xff) as u8;
 
-                defmt::info!("Setting `led` to {:08x}", rgb);
+                defmt::info!("Setting `led` to {:06x}", rgb);
                 // set the color
                 global::LED.signal((r, g, b));
                 let mut cfg = global::SYSCFG.lock().await;
@@ -309,6 +309,7 @@ async fn set_config(kv: Vec<(String, String)>) -> Option<String> {
                 cfg.vel = vel;
             }
             _ => {
+                defmt::error!("`set` failed: unknown key `{}`", k.as_str());
                 return Some(format!(
                     "{}set: unknown key `{}`\r\n",
                     strings::ERROR,
@@ -473,6 +474,7 @@ async fn get_config(key: String) -> String {
         }
         "version" => strings::VERSION.to_string(),
         _ => {
+            defmt::error!("`set` failed: unknown key `{}`", key.as_str());
             format!("{}get: unknown key `{}`\r\n", strings::ERROR, key.as_str())
         }
     }

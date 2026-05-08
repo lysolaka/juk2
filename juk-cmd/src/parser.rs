@@ -1,9 +1,10 @@
 //! Text input to commands parser
 use alloc::{string::ToString, vec::Vec};
 
-use juk_motion::interp::ArcDir;
+// use juk_motion::interp::ArcDir;
 
 use crate::{
+    ArcDir,
     Axis,
     Displacement,
     Error,

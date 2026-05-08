@@ -17,4 +17,3 @@ const_format = "0.2"
 libm = "0.2"
 
 juk-com = { path = "../juk-com" }
-juk-motion = { path = "../juk-motion" }

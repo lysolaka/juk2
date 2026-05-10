@@ -136,13 +136,13 @@ impl Displacement {
     ///
     /// - `axis`: the axis of the displacement
     /// - `pos`: the current absolute position as a tuple of `(x, y, z)`
-    pub fn to_relative(self, axis: Axis, pos: (i32, i32, i32)) -> Self {
+    pub fn to_relative(self, axis: Axis, pos: (i32, i32, i32)) -> i32 {
         match self {
-            Displacement::Relative(d) => Displacement::Relative(d),
+            Displacement::Relative(d) => d,
             Displacement::Absolute(d) => match axis {
-                Axis::X => Displacement::Relative(d - pos.0),
-                Axis::Y => Displacement::Relative(d - pos.1),
-                Axis::Z => Displacement::Relative(d - pos.2),
+                Axis::X => d - pos.0,
+                Axis::Y => d - pos.1,
+                Axis::Z => d - pos.2,
             },
         }
     }

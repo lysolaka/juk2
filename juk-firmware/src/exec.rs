@@ -22,7 +22,10 @@ pub async fn run_text(cmd: Command) -> Option<String> {
         Command::ConfigSet { kv } => set_config(kv).await,
         Command::ConfigGet { key } => Some(get_config(key).await),
         // movements go here
-        cmd => defmt::todo!(),
+        cmd => {
+            global::MOVEMENT.send(cmd).await;
+            None
+        }
     }
 }
 
@@ -492,7 +495,7 @@ pub async fn run_binary(cmd: Command) -> Option<Response> {
         }
         Command::ConfigSet { kv: _ } => {
             defmt::error!("Configuration is not supported in binary mode");
-            None
+            Some(Response::Unsupported)
         }
         Command::ConfigGet { key: _ } => {
             let cfg = global::SYSCFG.lock().await;
@@ -506,6 +509,9 @@ pub async fn run_binary(cmd: Command) -> Option<Response> {
             })
         }
         // movements go here
-        cmd => defmt::todo!(),
+        cmd => {
+            global::MOVEMENT.send(cmd).await;
+            None
+        }
     }
 }

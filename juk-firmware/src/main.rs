@@ -44,6 +44,7 @@ esp_hal::assign_resources! {
             ctrl: LEDC,
         },
         limits: LimitsResources<'d> {
+            io: IO_MUX,
             x_p: GPIO4,
             x_m: GPIO5,
             y_p: GPIO6,
@@ -84,6 +85,7 @@ fn main() -> ! {
             ctrl: resources.led.ctrl,
         },
         limits: juk_firmware::LimitsResources {
+            io: resources.limits.io,
             x_p: resources.limits.x_p,
             x_m: resources.limits.x_m,
             y_p: resources.limits.y_p,

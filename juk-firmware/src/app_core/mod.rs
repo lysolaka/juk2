@@ -1,4 +1,7 @@
 //! Code running on the second core (app core)
+
+mod limits;
+
 use embassy_executor::Spawner;
 
 use crate::{LimitsResources, MotorResources};
@@ -12,8 +15,10 @@ pub async fn main(
     // TODO: spawn some tasks
     let _ = spawner;
 
+
+    limits::init(limits);
     // discard warnings
-    let (_, _) = (limits, motor);
+    let _ = motor;
 
     loop {}
 }

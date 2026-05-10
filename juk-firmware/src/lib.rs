@@ -37,6 +37,7 @@ pub struct LedResources<'d> {
 
 /// Limit switches resources
 pub struct LimitsResources<'d> {
+    pub io: IO_MUX<'d>,
     pub x_p: GPIO4<'d>,
     pub x_m: GPIO5<'d>,
     pub y_p: GPIO6<'d>,

@@ -26,7 +26,7 @@ pub fn init(limits: LimitsResources<'static>) {
     // let mut z_p = Input::new(limits.z_p, config);
     let mut z_m = Input::new(limits.z_m, config);
 
-    defmt::debug!("Checking limit switch states");
+    // check the current limit switch state
     critical_section::with(|cs| {
         let mut status = global::LIMITS.borrow_ref_mut(cs);
 
@@ -51,7 +51,7 @@ pub fn init(limits: LimitsResources<'static>) {
         }
 
         defmt::info!(
-            "Limits state: X+: {0=0..1}, X-: {0=1..2}; Y+: {0=2..3}, Y-: {0=3..4}; X+: {0=4..5}, X-: {0=5..6}",
+            "Initial limits state: X+: {0=0..1}, X-: {0=1..2}; Y+: {0=2..3}, Y-: {0=3..4}; X+: {0=4..5}, X-: {0=5..6}",
             status.bits()
         );
     });
@@ -89,7 +89,7 @@ fn limits_isr() {
         handle_limit(&mut Z_P.borrow_ref_mut(cs), LimitStatus::PZ, &mut status);
         handle_limit(&mut Z_M.borrow_ref_mut(cs), LimitStatus::NZ, &mut status);
 
-        defmt::info!(
+        defmt::trace!(
             "Limits IRQ fired, status: X+: {0=0..1}, X-: {0=1..2}; Y+: {0=2..3}, Y-: {0=3..4}; X+: {0=4..5}, X-: {0=5..6}",
             status.bits()
         );

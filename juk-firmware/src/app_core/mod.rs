@@ -3,6 +3,7 @@
 mod limits;
 
 use embassy_executor::Spawner;
+use embassy_time::Timer;
 
 use crate::{LimitsResources, MotorResources};
 
@@ -15,10 +16,14 @@ pub async fn main(
     // TODO: spawn some tasks
     let _ = spawner;
 
-
-    limits::init(limits);
     // discard warnings
     let _ = motor;
+
+    // wait for the stuff to settle
+    Timer::after_millis(20).await;
+    limits::init(limits);
+
+    defmt::info!("Motor control unit started");
 
     loop {}
 }

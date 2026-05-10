@@ -18,6 +18,13 @@ pub async fn main(spawner: Spawner, com: ComResources<'static>, led: LedResource
 
     // wait for stuff before enabling the interface
     Timer::after_micros(20).await;
+
+    // spawn the COM controller
+    defmt::expect!(
+        spawner.spawn(com::com_control(com)),
+        "Failed to spawn the communication interface task"
+    );
+
     // signal the default LED color
     let rgb = {
         let cfg = global::SYSCFG.lock().await;
@@ -25,11 +32,7 @@ pub async fn main(spawner: Spawner, com: ComResources<'static>, led: LedResource
     };
     global::LED.signal(rgb_to_tuple(rgb));
 
-    // spawn the COM controller
-    defmt::expect!(
-        spawner.spawn(com::com_control(com)),
-        "Failed to spawn the communication interface task"
-    );
+    defmt::info!("Communication interface started");
 
     // run the easter egg in the main loop
     loop {

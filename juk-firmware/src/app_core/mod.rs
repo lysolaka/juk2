@@ -6,9 +6,9 @@ mod motor;
 use embassy_executor::Spawner;
 use embassy_time::Timer;
 
-use juk_cmd::{Axis, Displacement, MotionError, cmd::Command, defaults};
+use juk_cmd::{ArcDir, Axis, Displacement, MotionError, cmd::Command, defaults};
 use juk_motion::{
-    interp::LineGenerator,
+    interp::{ArcGenerator, LineGenerator},
     prof::{FastTrap, Flat, Profile},
 };
 
@@ -37,7 +37,6 @@ pub async fn main(
             Command::Move { x, y, z, a, v } => {
                 defmt::unwrap!(run_move(&mut motorctl, x, y, z, a, v).await)
             }
-            #[allow(unused_variables)]
             Command::Arc {
                 x,
                 y,
@@ -46,7 +45,7 @@ pub async fn main(
                 dir,
                 a,
                 v,
-            } => defmt::todo!(),
+            } => defmt::unwrap!(run_arc(&mut motorctl, x, y, z, r, dir, a, v).await),
             Command::Home { x, y, z } => defmt::unwrap!(run_homing(&mut motorctl, x, y, z).await),
             _ => defmt::unreachable!(),
         }
@@ -70,16 +69,67 @@ async fn run_move(
 
     let line = LineGenerator::new(dx, dy, dz)?;
 
+    defmt::debug!(
+        "Begin line movement, dx: {=i32}, dy: {=i32}, dz: {=i32}",
+        dx,
+        dy,
+        dz,
+    );
+
     // no acceleration means the flat profile
     if a == 0.0 {
         let mut prof = Flat::new(v, line.len() as u32)?;
         ctl.execute(line.step_iter(), prof.delays()).await;
-        Ok(())
     } else {
         let mut prof = FastTrap::new(a, v, line.len() as u32)?;
         ctl.execute(line.step_iter(), prof.delays()).await;
-        Ok(())
     }
+
+    defmt::debug!("Line movement done");
+
+    Ok(())
+}
+
+async fn run_arc(
+    ctl: &mut motor::MotorControl<'_>,
+    x: Displacement,
+    y: Displacement,
+    z: Displacement,
+    r: u32,
+    dir: ArcDir,
+    a: f32,
+    v: f32,
+) -> Result<(), MotionError> {
+    // we can copy the position since we're not moving at this point in time
+    let pos = critical_section::with(|cs| *global::POS.borrow_ref(cs));
+
+    let dx = x.to_relative(Axis::X, pos);
+    let dy = y.to_relative(Axis::Y, pos);
+    let dz = z.to_relative(Axis::Z, pos);
+
+    defmt::debug!(
+        "Begin arc movement, dx: {=i32}, dy: {=i32}, dz: {=i32}, r: {=u32}, dir: {:?}",
+        dx,
+        dy,
+        dz,
+        r,
+        dir
+    );
+
+    let arc = ArcGenerator::new(dx, dy, dz, r, dir)?;
+
+    // no acceleration means the flat profile
+    if a == 0.0 {
+        let mut prof = Flat::new(v, arc.len() as u32)?;
+        ctl.execute(arc.step_iter(), prof.delays()).await;
+    } else {
+        let mut prof = FastTrap::new(a, v, arc.len() as u32)?;
+        ctl.execute(arc.step_iter(), prof.delays()).await;
+    }
+
+    defmt::debug!("Arc movement done");
+
+    Ok(())
 }
 
 async fn run_homing(

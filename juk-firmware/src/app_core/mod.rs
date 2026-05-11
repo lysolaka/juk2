@@ -6,7 +6,7 @@ mod motor;
 use embassy_executor::Spawner;
 use embassy_time::Timer;
 
-use juk_cmd::{Axis, Displacement, MotionError, cmd::Command};
+use juk_cmd::{Axis, Displacement, MotionError, cmd::Command, defaults};
 use juk_motion::{
     interp::LineGenerator,
     prof::{FastTrap, Flat, Profile},
@@ -32,10 +32,10 @@ pub async fn main(
     defmt::info!("Motor control unit started");
 
     loop {
+        // FIXME: add proper error handling
         match global::MOVEMENT.receive().await {
             Command::Move { x, y, z, a, v } => {
-                // FIXME: add proper error handling
-                defmt::unwrap!(run_move(&mut motorctl, x, y, z, a, v).await);
+                defmt::unwrap!(run_move(&mut motorctl, x, y, z, a, v).await)
             }
             #[allow(unused_variables)]
             Command::Arc {
@@ -47,8 +47,7 @@ pub async fn main(
                 a,
                 v,
             } => defmt::todo!(),
-            #[allow(unused_variables)]
-            Command::Home { x, y, z } => defmt::todo!(),
+            Command::Home { x, y, z } => defmt::unwrap!(run_homing(&mut motorctl, x, y, z).await),
             _ => defmt::unreachable!(),
         }
     }
@@ -81,4 +80,67 @@ async fn run_move(
         ctl.execute(line.step_iter(), prof.delays()).await;
         Ok(())
     }
+}
+
+async fn run_homing(
+    ctl: &mut motor::MotorControl<'_>,
+    x: bool,
+    y: bool,
+    z: bool,
+) -> Result<(), MotionError> {
+    defmt::debug!(
+        "Begin homing sequence, X: {=bool}, Y: {=bool}, Z: {=bool}",
+        x,
+        y,
+        z
+    );
+
+    // home the x axis
+    if x {
+        // move back to the limit, 100% guarantee of hitting the limit switch
+        let line = LineGenerator::new(-50000, 0, 0)?;
+        let mut prof = FastTrap::new(defaults::ACCEL, defaults::VEL, 50000)?;
+        ctl.execute(line.step_iter(), prof.delays()).await;
+        // move away
+        let line = LineGenerator::new(200, 0, 0)?;
+        let mut prof = FastTrap::new(defaults::ACCEL, defaults::VEL, 200)?;
+        ctl.execute(line.step_iter(), prof.delays()).await;
+
+        // set the position to 0
+        critical_section::with(|cs| global::POS.borrow_ref_mut(cs).0 = 0);
+    }
+
+    // home the y axis
+    if y {
+        // move back to the limit, 100% guarantee of hitting the limit switch
+        let line = LineGenerator::new(0, -50000, 0)?;
+        let mut prof = FastTrap::new(defaults::ACCEL, defaults::VEL, 50000)?;
+        ctl.execute(line.step_iter(), prof.delays()).await;
+        // move away
+        let line = LineGenerator::new(0, 200, 0)?;
+        let mut prof = FastTrap::new(defaults::ACCEL, defaults::VEL, 200)?;
+        ctl.execute(line.step_iter(), prof.delays()).await;
+
+        // set the position to 0
+        critical_section::with(|cs| global::POS.borrow_ref_mut(cs).1 = 0);
+    }
+
+    // home the z axis
+    if z {
+        // move back to the limit, 100% guarantee of hitting the limit switch
+        let line = LineGenerator::new(0, 0, -100000)?;
+        let mut prof = FastTrap::new(defaults::ACCEL, defaults::VEL, 100000)?;
+        ctl.execute(line.step_iter(), prof.delays()).await;
+        // move away
+        let line = LineGenerator::new(0, 0, 1500)?;
+        let mut prof = FastTrap::new(defaults::ACCEL, defaults::VEL, 1500)?;
+        ctl.execute(line.step_iter(), prof.delays()).await;
+
+        // set the position to 0
+        critical_section::with(|cs| global::POS.borrow_ref_mut(cs).2 = 0);
+    }
+
+    defmt::debug!("Homing complete");
+
+    Ok(())
 }

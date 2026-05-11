@@ -19,6 +19,7 @@ The machine operates in Cartesian coordinates using four motors: one for X and Y
 # Software
 
 Just like the first edition of JUK, the entire software stack is developed using Rust. This time the project is split into crates in a single workspace. The structure is as follows:
+- `juk-cmd`: command parsing and wire protocol library
 - `juk-com`: a communication library implementing text and binary interfaces
 - `juk-firmware`: the main firmware executable
 - `juk-led`: a simple library to use an RGB LED using PWM

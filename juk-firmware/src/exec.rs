@@ -35,7 +35,7 @@ async fn set_config(kv: Vec<(String, String)>) -> Option<String> {
         match k.as_str() {
             "accel" => {
                 let a = match v.parse() {
-                    Ok(a) if defaults::MOTION_ARG_RANGE.contains(&a) => a,
+                    Ok(a) if defaults::ACCEL_ARG_RANGE.contains(&a) => a,
                     Ok(a) => {
                         defmt::error!("`set accel={}` failed: value out of range", v.as_str());
                         return Some(format!(
@@ -288,7 +288,7 @@ async fn set_config(kv: Vec<(String, String)>) -> Option<String> {
             }
             "vel" => {
                 let vel = match v.parse() {
-                    Ok(vel) if defaults::MOTION_ARG_RANGE.contains(&vel) => vel,
+                    Ok(vel) if defaults::VEL_ARG_RANGE.contains(&vel) => vel,
                     Ok(vel) => {
                         defmt::error!("`set vel={}` failed: value out of range", v.as_str());
                         return Some(format!(

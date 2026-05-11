@@ -4,27 +4,27 @@
 
 ## Summary
 
-| Option   | Data Type   | Values                 | Default Value |
-|----------|-------------|------------------------|---------------|
-| `accel`  | `f32`       | \[`0.0`, `50000.0`\]   | *TODO*        |
-| `frame`  | `enum`      | `rel`, `abs`           | `rel`         |
-| `led`    | `u32`       | \[`000000`, `ffffff`\] | `00ff00`      |
-| `limits` | `[bool; 6]` | key is read-only       | *undefined*   |
-| `mmpsX`  | `f32`       | \(`0.0`, `1.0`\]       | `0.0125625`   |
-| `mmpsY`  | `f32`       | \(`0.0`, `1.0`\]       | `0.0125625`   |
-| `mmpsZ`  | `f32`       | \(`0.0`, `1.0`\]       | *TODO*        |
-| `posX`   | `i32`       | \[`0`, `50000`\]       | `0`           |
-| `posY`   | `i32`       | \[`0`, `50000`\]       | `0`           |
-| `posZ`   | `i32`       | \[`0`, `50000`\]       | `0`           |
-| `unit`   | `enum`      | `steps`, `mm`          | `steps`       |
-| `vel`    | `f32`       | \[`0.0`, `50000.0`\]   | *TODO*        |
+| Option   | Data Type   | Values                  | Default Value |
+|----------|-------------|-------------------------|---------------|
+| `accel`  | `f32`       | \[`0.0`, `100000.0`\]   | *TODO*        |
+| `frame`  | `enum`      | `rel`, `abs`            | `rel`         |
+| `led`    | `u32`       | \[`000000`, `ffffff`\]  | `00ff00`      |
+| `limits` | `[bool; 6]` | key is read-only        | *undefined*   |
+| `mmpsX`  | `f32`       | \(`0.0`, `1.0`\]        | `0.0125625`   |
+| `mmpsY`  | `f32`       | \(`0.0`, `1.0`\]        | `0.0125625`   |
+| `mmpsZ`  | `f32`       | \(`0.0`, `1.0`\]        | *TODO*        |
+| `posX`   | `i32`       | \[`0`, `50000`\]        | `0`           |
+| `posY`   | `i32`       | \[`0`, `50000`\]        | `0`           |
+| `posZ`   | `i32`       | \[`0`, `50000`\]        | `0`           |
+| `unit`   | `enum`      | `steps`, `mm`           | `steps`       |
+| `vel`    | `f32`       | \[`0.0`, `50000.0`\]    | *TODO*        |
 
 ## Description
 
 #### `accel` - Default Acceleration
 
 Data type: `f32`
-Value range: \[`0.0`, `50000.0`\]
+Value range: \[`0.0`, `100000.0`\]
 Default value: *TODO*
 
 Default acceleration value in `steps / s^2` used when the acceleration motion parameter is ommited.
@@ -169,7 +169,7 @@ That is:
 
 - `frame` = `rel`, `unit` = `mm`:
     - Data type: floating-point
-    - Range: \[-1000, 1000\]
+    - Range: \[-500, 500\]
 
 - `frame` = `abs`, `unit` = `steps`:
     - Data type: integer
@@ -177,7 +177,7 @@ That is:
 
 - `frame` = `abs`, `unit` = `mm`:
     - Data type: floating-point
-    - Range: \[0, 1000\]
+    - Range: \[0, 5000\]
 
 ## Motion Arguments
 
@@ -185,7 +185,9 @@ Allowed values for acceleration and velocity arguments depend on the current uni
 
 - `unit` = `steps`
     - Data type: floating-point
-    - Range: \[0, 50000\]
+    - Range: 
+        - acceleration: \[0, 100000\]
+        - velocity: \[0, 50000\]
 
 - `unit` = `mm`
     - Data type: floating-point

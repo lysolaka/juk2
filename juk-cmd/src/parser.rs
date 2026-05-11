@@ -103,7 +103,7 @@ fn parse_move<'a>(
                     a
                 };
 
-                if !defaults::MOTION_ARG_RANGE.contains(&a) {
+                if !defaults::ACCEL_ARG_RANGE.contains(&a) {
                     return Err(Error::MotionRange);
                 } else {
                     out_a = a;
@@ -118,7 +118,7 @@ fn parse_move<'a>(
                     v
                 };
 
-                if !defaults::MOTION_ARG_RANGE.contains(&v) {
+                if !defaults::VEL_ARG_RANGE.contains(&v) {
                     return Err(Error::MotionRange);
                 } else {
                     out_v = v;
@@ -223,7 +223,7 @@ fn parse_arc<'a>(
                     a
                 };
 
-                if !defaults::MOTION_ARG_RANGE.contains(&a) {
+                if !defaults::ACCEL_ARG_RANGE.contains(&a) {
                     return Err(Error::MotionRange);
                 } else {
                     out_a = a;
@@ -238,7 +238,7 @@ fn parse_arc<'a>(
                     v
                 };
 
-                if !defaults::MOTION_ARG_RANGE.contains(&v) {
+                if !defaults::VEL_ARG_RANGE.contains(&v) {
                     return Err(Error::MotionRange);
                 } else {
                     out_v = v;

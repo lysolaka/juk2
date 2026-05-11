@@ -102,8 +102,6 @@ fn handle_limit(pin: &mut Option<Input>, flag: LimitStatus, status: &mut LimitSt
         return;
     };
     // check if it's the pin we need to handle
-    // TODO: check if we need this, the extra few cycles to check every button might be worth it in
-    // reliability
     if !pin.is_interrupt_set() {
         return;
     }
@@ -111,7 +109,10 @@ fn handle_limit(pin: &mut Option<Input>, flag: LimitStatus, status: &mut LimitSt
     // the interrupt triggers on any edge, we need to check which one is it
     match pin.level() {
         // if pressed set the endstop flag
-        Level::Low => status.insert(flag),
+        Level::Low => {
+            status.insert(flag);
+            global::CANCEL.signal(());
+        }
         // if not remove it
         Level::High => status.remove(flag),
     }

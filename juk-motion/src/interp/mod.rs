@@ -41,6 +41,14 @@ impl Step {
         }
     }
 
+    /// Level to be applied to the step pin.
+    pub const fn step_level(&self) -> Level {
+        match self {
+            Step::Positive | Step::Negative => Level::High,
+            Step::None => Level::Low,
+        }
+    }
+
     /// What direction the step should be.
     pub const fn dir(&self) -> Level {
         match self {

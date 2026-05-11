@@ -53,6 +53,7 @@ esp_hal::assign_resources! {
             z_m: GPIO16,
         },
         motor: MotorResources<'d> {
+            tim: TIMG0,
             en_drv: GPIO45,
             en_led: GPIO21,
             x_step: GPIO10,
@@ -94,6 +95,7 @@ fn main() -> ! {
             z_m: resources.limits.z_m,
         },
         motor: juk_firmware::MotorResources {
+            tim: resources.motor.tim,
             en_drv: resources.motor.en_drv,
             en_led: resources.motor.en_led,
             x_step: resources.motor.x_step,

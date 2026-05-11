@@ -25,6 +25,7 @@ embassy-futures = "0.1"
 embassy-sync = "0.8"
 embassy-time = "0.5"
 esp-alloc = "0.9"
+heapless = "0.9"
 static_cell = "2.1"
 
 juk-cmd = { path = "../juk-cmd" }

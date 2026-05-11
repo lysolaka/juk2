@@ -48,6 +48,7 @@ pub struct LimitsResources<'d> {
 
 /// Motor control resources
 pub struct MotorResources<'d> {
+    pub tim: TIMG0<'d>,
     pub en_drv: GPIO45<'d>,
     pub en_led: GPIO21<'d>,
     pub x_step: GPIO10<'d>,

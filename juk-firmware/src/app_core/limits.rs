@@ -49,7 +49,7 @@ pub fn init(limits: LimitsResources<'static>) {
         }
 
         defmt::info!(
-            "Initial limits state: X+: {0=0..1}, X-: {0=1..2}; Y+: {0=2..3}, Y-: {0=3..4}; X+: {0=4..5}, X-: {0=5..6}",
+            "Initial limits state: X+: {0=0..1}, X-: {0=1..2}; Y+: {0=2..3}, Y-: {0=3..4}; Z+: {0=4..5}, Z-: {0=5..6}",
             status.bits()
         );
     });
@@ -87,7 +87,7 @@ fn limits_isr() {
         handle_limit(&mut Z_M.borrow_ref_mut(cs), LimitStatus::NZ, &mut status);
 
         defmt::trace!(
-            "Limits IRQ fired, status: X+: {0=0..1}, X-: {0=1..2}; Y+: {0=2..3}, Y-: {0=3..4}; X+: {0=4..5}, X-: {0=5..6}",
+            "Limits IRQ fired, status: X+: {0=0..1}, X-: {0=1..2}; Y+: {0=2..3}, Y-: {0=3..4}; Z+: {0=4..5}, Z-: {0=5..6}",
             status.bits()
         );
     });

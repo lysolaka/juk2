@@ -423,21 +423,22 @@ async fn get_config(key: String) -> String {
             format!("{}  `posZ` = {}\r\n", strings::INFO, pos.2)
         }
         "status" => {
-            let mmps = {
+            let (frame, unit) = {
                 let c = global::SYSCFG.lock().await;
-                c.mmps
+                (c.frame, c.unit)
             };
-            let mmps = format!(
-                "{0}  `mmps`\r\n{0}   X = {1}\r\n{0}   Y = {2}\r\n{0}   Z = {3}\r\n",
-                strings::INFO,
-                mmps.0,
-                mmps.1,
-                mmps.2
-            );
+            let frame = match frame {
+                Frame::Absolute => format!("{}  `frame` = abs\r\n", strings::INFO),
+                Frame::Relative => format!("{}  `frame` = rel\r\n", strings::INFO),
+            };
+            let unit = match unit {
+                Unit::Steps => format!("{}  `unit` = steps\r\n", strings::INFO),
+                Unit::Millimeters => format!("{}  `unit` = mm\r\n", strings::INFO),
+            };
 
             let pos = critical_section::with(|cs| *global::POS.borrow_ref(cs));
             let pos = format!(
-                "{0}  `pos`\r\n{0}   X = {1}\r\n{0}   Y = {2}\r\n{0}   Z = {3}\r\n",
+                "{0}  `pos`\r\n{0}     X = {1}\r\n{0}     Y = {2}\r\n{0}     Z = {3}\r\n",
                 strings::INFO,
                 pos.0,
                 pos.1,
@@ -446,7 +447,7 @@ async fn get_config(key: String) -> String {
 
             let lim = critical_section::with(|cs| *global::LIMITS.borrow_ref(cs));
             let lim = format!(
-                "{0}  `limits`\r\n{0}   X+: {1}, X-: {2}\r\n{0}   Y+: {3}, Y-: {4}\r\n{0}   Z+: {5}, Z-: {6}\r\n",
+                "{0}  `limits`\r\n{0}     X+: {1}, X-: {2}\r\n{0}     Y+: {3}, Y-: {4}\r\n{0}     Z+: {5}, Z-: {6}\r\n",
                 strings::INFO,
                 lim.contains(LimitStatus::PX),
                 lim.contains(LimitStatus::NX),
@@ -456,7 +457,7 @@ async fn get_config(key: String) -> String {
                 lim.contains(LimitStatus::NZ),
             );
 
-            format!("{}{}{}", mmps, pos, lim)
+            format!("{}{}{}{}", frame, unit, pos, lim)
         }
         "unit" => {
             let unit = {

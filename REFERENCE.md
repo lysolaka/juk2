@@ -321,7 +321,7 @@ get pos=loremipsum
 Additionally the following keys are available:
 - `pos`: absolute position of every axis in steps
 - `mmps`: millimeters per step coefficient for every axis
-- `status`: combined `pos`, `mmps` and limit switch information
+- `status`: combined `pos`, `frame`, `unit` and limit switch information
 - `version`: version information
 - `license`: license information
 

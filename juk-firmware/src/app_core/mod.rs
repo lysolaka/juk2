@@ -3,26 +3,33 @@
 mod limits;
 mod motor;
 
+use alloc::{format, vec::Vec};
+
 use embassy_executor::Spawner;
 use embassy_time::Timer;
 
-use juk_cmd::{ArcDir, Axis, Displacement, MotionError, cmd::Command, defaults};
+use juk_cmd::{
+    ArcDir,
+    Axis,
+    Displacement,
+    MotionError,
+    cmd::{Command, Response},
+    defaults,
+};
+use juk_com::InterfaceMode;
 use juk_motion::{
     interp::{ArcGenerator, LineGenerator},
     prof::{FastTrap, Flat, Profile},
 };
 
-use crate::{LimitsResources, MotorResources, global};
+use crate::{LimitsResources, MotorResources, global, strings};
 
 #[embassy_executor::task]
 pub async fn main(
-    spawner: Spawner,
+    _spawner: Spawner, // no tasks on this core
     limits: LimitsResources<'static>,
     motor: MotorResources<'static>,
 ) -> ! {
-    // TODO: spawn some tasks
-    let _ = spawner;
-
     let mut motorctl = motor::init(motor);
 
     // wait for the stuff to settle
@@ -32,11 +39,9 @@ pub async fn main(
     defmt::info!("Motor control unit started");
 
     loop {
-        // FIXME: add proper error handling
-        match global::MOVEMENT.receive().await {
-            Command::Move { x, y, z, a, v } => {
-                defmt::unwrap!(run_move(&mut motorctl, x, y, z, a, v).await)
-            }
+        // execute the movement and get the result
+        let res = match global::MOVEMENT.receive().await {
+            Command::Move { x, y, z, a, v } => run_move(&mut motorctl, x, y, z, a, v).await,
             Command::Arc {
                 x,
                 y,
@@ -45,10 +50,49 @@ pub async fn main(
                 dir,
                 a,
                 v,
-            } => defmt::unwrap!(run_arc(&mut motorctl, x, y, z, r, dir, a, v).await),
-            Command::Home { x, y, z } => defmt::unwrap!(run_homing(&mut motorctl, x, y, z).await),
+            } => run_arc(&mut motorctl, x, y, z, r, dir, a, v).await,
+            Command::Home { x, y, z } => run_homing(&mut motorctl, x, y, z).await,
             _ => defmt::unreachable!(),
-        }
+        };
+
+        // determine the interface mode so that we can format the message
+        let interface_mode = {
+            let c = global::SYSCFG.lock().await;
+            c.mode
+        };
+
+        // format the message to send back to the interface
+        let msg = match interface_mode {
+            InterfaceMode::Binary => {
+                // in binary mode we send stuff regardless what happens
+                let mut buf = Vec::with_capacity(32);
+                if let Err(e) = res {
+                    defmt::error!("Movement error: {}", e);
+                    defmt::expect!(
+                        postcard::to_slice(&Response::Err(e), &mut buf),
+                        "Response serialization failed"
+                    );
+                } else {
+                    defmt::expect!(
+                        postcard::to_slice(&Response::Ok, &mut buf),
+                        "Response serialization failed"
+                    );
+                }
+                buf
+            }
+            InterfaceMode::Text => {
+                // in text mode we only send messages on errors
+                if let Err(e) = res {
+                    defmt::error!("Movement error: {}", e);
+                    format!("{}Cannot execute: {}\r\n", strings::ERROR, e).into_bytes()
+                } else {
+                    continue;
+                }
+            }
+        };
+
+        // send the message to the interface
+        global::TERMINAL.send(msg).await;
     }
 }
 

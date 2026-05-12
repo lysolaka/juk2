@@ -22,8 +22,7 @@ pub fn init(limits: LimitsResources<'static>) {
     let mut x_m = Input::new(limits.x_m, config);
     let mut y_p = Input::new(limits.y_p, config);
     let mut y_m = Input::new(limits.y_m, config);
-    // FIXME: Z+ limit switch has a faulty capacitor with a short, uncomment after it's fixed
-    // let mut z_p = Input::new(limits.z_p, config);
+    let mut z_p = Input::new(limits.z_p, config);
     let mut z_m = Input::new(limits.z_m, config);
 
     // check the current limit switch state
@@ -42,10 +41,9 @@ pub fn init(limits: LimitsResources<'static>) {
         if y_m.is_low() {
             status.insert(LimitStatus::NY);
         }
-        // FIXME: Z+ limit switch has a faulty capacitor with a short, uncomment after it's fixed
-        // if z_p.is_low() {
-        //     status.insert(LimitStatus::PZ);
-        // }
+        if z_p.is_low() {
+            status.insert(LimitStatus::PZ);
+        }
         if z_m.is_low() {
             status.insert(LimitStatus::NZ);
         }
@@ -69,9 +67,8 @@ pub fn init(limits: LimitsResources<'static>) {
         Y_P.borrow_ref_mut(cs).replace(y_p);
         y_m.listen(Event::AnyEdge);
         Y_M.borrow_ref_mut(cs).replace(y_m);
-        // FIXME: Z+ limit switch has a faulty capacitor with a short, uncomment after it's fixed
-        // z_p.listen(Event::AnyEdge);
-        // Z_P.borrow_ref_mut(cs).replace(z_p);
+        z_p.listen(Event::AnyEdge);
+        Z_P.borrow_ref_mut(cs).replace(z_p);
         z_m.listen(Event::AnyEdge);
         Z_M.borrow_ref_mut(cs).replace(z_m);
     });

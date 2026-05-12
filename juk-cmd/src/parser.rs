@@ -270,7 +270,7 @@ fn parse_home<'a>(args: impl Iterator<Item = Arg<'a>>) -> Result<Command, Error>
 
     for arg in args {
         match arg {
-            Arg::KeyValue("axis", val) => {
+            Arg::KeyValue("axis", val) if val.chars().all(|c| c == 'x' || c == 'y' || c == 'z') => {
                 out = (false, false, false);
                 // let's cut corners and check using `contains()`
                 if val.contains('x') {
@@ -300,9 +300,7 @@ fn parse_set<'a>(args: impl Iterator<Item = Arg<'a>>) -> Result<Command, Error> 
 
     for arg in args {
         match arg {
-            Arg::KeyValue(k, val) => {
-                out.push((k.to_string(), val.to_string()))
-            }
+            Arg::KeyValue(k, val) => out.push((k.to_string(), val.to_string())),
             _ => return Err(Error::InvalidArgument),
         }
     }

@@ -1345,6 +1345,7 @@ dependencies = [
  "defmt 1.0.1",
  "embassy-futures",
  "esp-hal",
+ "juk-cmd",
  "str_indices",
  "vte",
 ]

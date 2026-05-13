@@ -3,8 +3,8 @@ use alloc::format;
 
 use esp_hal::uart::{Config, DataBits, Parity, StopBits, Uart};
 
-use juk_cmd::parse_cmd;
-use juk_com::{Input, Interface, InterfaceMode, Terminal};
+use juk_cmd::{cmd::parser::parse_cmd, config::InterfaceMode};
+use juk_com::{Input, Interface, Terminal};
 
 use crate::{ComResources, exec, global, strings};
 

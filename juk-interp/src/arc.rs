@@ -1,7 +1,7 @@
 //! Arc interpolator using a rotation matrix
 use core::iter::FlatMap;
 
-use juk_cmd::{ArcDir, MotionError};
+use juk_cmd::{MotionError, cmd::ArcDir};
 
 use crate::{
     Step,

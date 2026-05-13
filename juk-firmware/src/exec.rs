@@ -499,15 +499,12 @@ pub async fn run_binary(cmd: Command) -> Option<Response> {
             Some(Response::Unsupported)
         }
         Command::ConfigGet { key: _ } => {
-            let cfg = global::SYSCFG.lock().await;
+            let cfg = {
+                let c = global::SYSCFG.lock().await;
+                *c
+            };
             defmt::info!("Configuration acquired, sending back");
-            Some(Response::Config {
-                accel: cfg.accel,
-                vel: cfg.vel,
-                frame: cfg.frame,
-                unit: cfg.unit,
-                mmps: cfg.mmps,
-            })
+            Some(Response::Config(cfg))
         }
         // movements go here
         cmd => {

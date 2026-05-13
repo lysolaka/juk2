@@ -9,14 +9,11 @@ use embassy_executor::Spawner;
 use embassy_time::Timer;
 
 use juk_cmd::{
-    ArcDir,
-    Axis,
-    Displacement,
     MotionError,
-    cmd::{Command, Response},
+    cmd::{ArcDir, Axis, Command, Displacement, Response},
+    config::InterfaceMode,
     defaults,
 };
-use juk_com::InterfaceMode;
 use juk_interp::{ArcGenerator, LineGenerator};
 use juk_motion::{FastTrap, Flat, Profile};
 

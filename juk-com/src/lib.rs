@@ -13,10 +13,12 @@ mod terminal;
 pub mod history;
 pub mod linebuffer;
 
-pub use interface::{Interface, InterfaceMode};
+pub use interface::Interface;
 pub use terminal::Terminal;
 
 use alloc::{string::String, vec::Vec};
+
+use juk_cmd::config::InterfaceMode;
 
 /// An enum representing input events fired by [`Interface`].
 pub enum Input {

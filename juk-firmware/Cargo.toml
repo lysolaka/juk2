@@ -28,7 +28,7 @@ esp-alloc = "0.9"
 heapless = "0.9"
 static_cell = "2.1"
 
-juk-cmd = { path = "../juk-cmd" }
+juk-cmd = { path = "../juk-cmd", features = ["defmt"] }
 juk-com = { path = "../juk-com" }
 juk-interp = { path = "../juk-interp" }
 juk-led = { path = "../juk-led" }

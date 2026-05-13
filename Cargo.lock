@@ -1330,9 +1330,7 @@ dependencies = [
 name = "juk-cmd"
 version = "0.1.0-beta.2"
 dependencies = [
- "const_format",
  "defmt 1.0.1",
- "juk-com",
  "libm",
  "serde",
  "thiserror",

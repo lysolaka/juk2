@@ -1,17 +1,23 @@
-/// ! Command definitions
-use alloc::string::String;
-use alloc::vec::Vec;
+//! Command definitions
 
+mod args;
+#[cfg(not(feature = "export"))]
+pub mod parser;
+
+pub use args::{ArcDir, Axis, Displacement};
+
+use alloc::{string::String, vec::Vec};
 use serde::{Deserialize, Serialize};
 
-use crate::{ArcDir, Displacement, MotionError, config};
+use crate::{MotionError, config::SystemConfig};
 
 /// JUK2 command set expressed as an enum.
 ///
 /// This enum implements [`serde::Serialize`] and [`serde::Deserialize`] to be used as the binary
 /// communication format. Binary messages should be serialized using serde and postcard with COBS
 /// encoding.
-#[derive(defmt::Format, Deserialize, Serialize)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[derive(Deserialize, Serialize)]
 pub enum Command {
     /// Linear movement
     Move {
@@ -46,16 +52,11 @@ pub enum Command {
 ///
 /// This enum implements [`serde::Serialize`] and [`serde::Deserialize`] to be used in the binary
 /// mode. Binary messages should be serialized using serde and postcard with COBS encoding.
-#[derive(defmt::Format, Deserialize, Serialize)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[derive(Deserialize, Serialize)]
 pub enum Response {
     /// Useful variables from the system configuration
-    Config {
-        accel: f32,
-        vel: f32,
-        frame: config::Frame,
-        unit: config::Unit,
-        mmps: (f32, f32, f32),
-    },
+    Config(SystemConfig),
     /// The command was executed successfully
     Ok,
     /// The command is unsupported in binary mode

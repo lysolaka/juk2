@@ -1,7 +1,7 @@
-//! Default values and range limits definitions
+//! Default values and range limits
 use core::ops::RangeInclusive;
 
-use crate::config::{Frame, SystemConfig, Unit};
+use crate::config::{Frame, InterfaceMode, SystemConfig, Unit};
 
 pub const MM_DISP_RANGE: RangeInclusive<f32> = -500.0..=500.0;
 pub const STEP_DISP_RANGE: RangeInclusive<i32> = -50_000..=50_000;
@@ -23,7 +23,7 @@ impl SystemConfig {
             frame: Frame::Relative,
             unit: Unit::Steps,
             mmps: (0.0125625, 0.0125625, 0.0125625),
-            mode: juk_com::InterfaceMode::Text,
+            mode: InterfaceMode::Text,
             led: 0x00ff00,
         }
     }

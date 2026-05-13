@@ -1328,7 +1328,7 @@ dependencies = [
 
 [[package]]
 name = "juk-cmd"
-version = "0.1.0-beta.2"
+version = "0.1.0-beta.3"
 dependencies = [
  "defmt 1.0.1",
  "libm",
@@ -1338,7 +1338,7 @@ dependencies = [
 
 [[package]]
 name = "juk-com"
-version = "0.1.0-beta.2"
+version = "0.1.0-beta.3"
 dependencies = [
  "circular-buffer",
  "const_format",
@@ -1352,7 +1352,7 @@ dependencies = [
 
 [[package]]
 name = "juk-firmware"
-version = "0.1.0-beta.2"
+version = "0.1.0-beta.3"
 dependencies = [
  "bitflags 2.11.1",
  "const_format",
@@ -1381,7 +1381,7 @@ dependencies = [
 
 [[package]]
 name = "juk-interp"
-version = "0.1.0-beta.2"
+version = "0.1.0-beta.3"
 dependencies = [
  "defmt 1.0.1",
  "esp-hal",
@@ -1391,7 +1391,7 @@ dependencies = [
 
 [[package]]
 name = "juk-led"
-version = "0.1.0-beta.2"
+version = "0.1.0-beta.3"
 dependencies = [
  "defmt 1.0.1",
  "esp-hal",
@@ -1399,7 +1399,7 @@ dependencies = [
 
 [[package]]
 name = "juk-motion"
-version = "0.1.0-beta.2"
+version = "0.1.0-beta.3"
 dependencies = [
  "defmt 1.0.1",
  "juk-cmd",

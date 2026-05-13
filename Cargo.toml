@@ -4,6 +4,7 @@ members = [
   "juk-cmd",
   "juk-com",
   "juk-firmware",
+  "juk-interp",
   "juk-led", 
   "juk-motion",
 ]

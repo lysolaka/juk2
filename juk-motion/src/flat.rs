@@ -1,5 +1,7 @@
 //! The flat motion profile
-use crate::{Error, prof::Profile};
+use juk_cmd::MotionError;
+
+use crate::Profile;
 
 /// A constant velocity motion profile.
 ///
@@ -16,11 +18,11 @@ impl Flat {
     /// # Errors
     ///
     /// It is an error if any argument is 0.
-    pub fn new(v_max: f32, steps: u32) -> Result<Self, Error> {
+    pub fn new(v_max: f32, steps: u32) -> Result<Self, MotionError> {
         if v_max == 0.0 {
-            Err(Error::ZeroVelocity)
+            Err(MotionError::ZeroVelocity)
         } else if steps == 0 {
-            Err(Error::ZeroDisplacement)
+            Err(MotionError::ZeroDisplacement)
         } else {
             Ok(Self {
                 delay: 1.0 / v_max,

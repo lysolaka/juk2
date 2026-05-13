@@ -1,9 +1,11 @@
 //! Arc interpolator using a rotation matrix
 use core::iter::FlatMap;
 
+use juk_cmd::{ArcDir, MotionError};
+
 use crate::{
-    Error,
-    interp::{ArcDir, LineGenerator, Step, line::LineIter},
+    Step,
+    line::{LineGenerator, LineIter},
 };
 
 /// 2D arc interpolator with support for helix movements.
@@ -47,9 +49,9 @@ impl ArcGenerator {
     /// - `r = 0`: no radius means no arc,
     /// - zero displacement: no movement,
     /// - radius too small: can't draw an arc like that.
-    pub fn new(dx: i32, dy: i32, dz: i32, r: u32, dir: ArcDir) -> Result<Self, Error> {
+    pub fn new(dx: i32, dy: i32, dz: i32, r: u32, dir: ArcDir) -> Result<Self, MotionError> {
         if r == 0 {
-            return Err(Error::ZeroRadius);
+            return Err(MotionError::ZeroRadius);
         }
 
         let r = r as f32;
@@ -59,9 +61,9 @@ impl ArcGenerator {
 
         let d = libm::hypotf(dx, dy);
         if d == 0.0 {
-            return Err(Error::ZeroDisplacement);
+            return Err(MotionError::ZeroDisplacement);
         } else if d > 2.0 * r {
-            return Err(Error::ImpossibleGeometry);
+            return Err(MotionError::ImpossibleGeometry);
         }
 
         // midpoint

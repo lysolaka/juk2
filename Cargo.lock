@@ -1380,6 +1380,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "juk-interp"
+version = "0.1.0-beta.2"
+dependencies = [
+ "defmt 1.0.1",
+ "esp-hal",
+ "juk-cmd",
+ "libm",
+]
+
+[[package]]
 name = "juk-led"
 version = "0.1.0-beta.2"
 dependencies = [
@@ -1392,7 +1402,6 @@ name = "juk-motion"
 version = "0.1.0-beta.2"
 dependencies = [
  "defmt 1.0.1",
- "esp-hal",
  "juk-cmd",
  "libm",
 ]

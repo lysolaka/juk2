@@ -17,10 +17,8 @@ use juk_cmd::{
     defaults,
 };
 use juk_com::InterfaceMode;
-use juk_motion::{
-    interp::{ArcGenerator, LineGenerator},
-    prof::{FastTrap, Flat, Profile},
-};
+use juk_interp::{ArcGenerator, LineGenerator};
+use juk_motion::{FastTrap, Flat, Profile};
 
 use crate::{LimitsResources, MotorResources, global, strings};
 

@@ -1372,6 +1372,7 @@ dependencies = [
  "heapless 0.9.3",
  "juk-cmd",
  "juk-com",
+ "juk-interp",
  "juk-led",
  "juk-motion",
  "postcard",

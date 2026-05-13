@@ -14,7 +14,7 @@ use esp_hal::{
 };
 use heapless::spsc::{Consumer, Producer, Queue};
 
-use juk_motion::interp::Step;
+use juk_interp::Step;
 
 use crate::{MotorResources, global, global::LimitStatus};
 

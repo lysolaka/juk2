@@ -10,7 +10,6 @@ pub mod defaults;
 use serde::{Deserialize, Serialize};
 
 /// Errors, which can be encountered when parsing commands.
-#[cfg(not(feature = "export"))]
 #[derive(Debug, thiserror::Error)]
 pub enum ParseError {
     /// The displacement value is out of range

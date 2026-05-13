@@ -1,6 +1,6 @@
 [package]
 name = "juk-interp"
-description = "Motion interpolators for JUK2"
+description = "Motion interpolators for JUK2."
 version.workspace = true
 authors.workspace = true
 license.workspace = true

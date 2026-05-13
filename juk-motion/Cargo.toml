@@ -1,6 +1,6 @@
 [package]
 name = "juk-motion"
-description = "Motion profiles for JUK2"
+description = "Motion profiles for JUK2."
 version.workspace = true
 authors.workspace = true
 license.workspace = true

@@ -22,8 +22,9 @@ Just like the first edition of JUK, the entire software stack is developed using
 - `juk-cmd`: command parsing and wire protocol library
 - `juk-com`: a communication library implementing text and binary interfaces
 - `juk-firmware`: the main firmware executable
+- `juk-interp`: movement interpolators library
 - `juk-led`: a simple library to use an RGB LED using PWM
-- `juk-motion`: motion profiles and interpolators library
+- `juk-motion`: motion profiles library
 
 ## Toolchain
 

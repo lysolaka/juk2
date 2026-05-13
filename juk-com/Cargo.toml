@@ -1,6 +1,6 @@
 [package]
 name = "juk-com"
-description = "Communication interface for use with the `juk-firmware`."
+description = "Communication interface for use with JUK2."
 version.workspace = true
 authors.workspace = true
 license.workspace = true

@@ -5,7 +5,7 @@ use core::{
 };
 
 use critical_section::Mutex;
-use embassy_futures::select::{Either, select};
+use embassy_futures::select::{Either, Either3, select, select3};
 use esp_hal::{
     Blocking,
     gpio::{Level, Output, OutputConfig},
@@ -112,6 +112,8 @@ pub struct MotorControl<'d> {
 }
 
 impl<'d> MotorControl<'d> {
+    /// Execute the step and delay sequence, but return when a limit switch is hit or the user
+    /// cancels the operation
     pub async fn execute<SI, DI>(&mut self, step_iter: SI, delay_iter: DI)
     where
         SI: Iterator<Item = (Step, Step, Step)>,
@@ -119,21 +121,61 @@ impl<'d> MotorControl<'d> {
     {
         // reset the abort state
         ABORT_COND.store(false, Ordering::Release);
-        // reset any stale cancel signal
+        // reset any stale cancel signals
         global::CANCEL.reset();
+        global::LIMIT_CANCEL.reset();
+        // enable the driver
+        self.drv.set_low();
+        self.led.set_high();
+        match select3(
+            self.execute_impl(step_iter, delay_iter),
+            global::CANCEL.wait(),
+            global::LIMIT_CANCEL.wait(),
+        )
+        .await
+        {
+            Either3::First(_) => defmt::info!("Movement complete"),
+            Either3::Second(_) => {
+                ABORT_COND.store(true, Ordering::Release);
+                defmt::warn!("Movement aborted: cancelled by the user");
+            }
+            Either3::Third(_) => {
+                ABORT_COND.store(true, Ordering::Release);
+                defmt::error!("Movement aborted: hit a limit switch");
+            }
+        }
+        self.drv.set_high();
+        self.led.set_low();
+    }
+
+    /// Execute the step and delay sequence, but return when a limit switch is hit. This version of
+    /// `execute()` is only suitable for the homing sequence.
+    ///
+    /// # Warning
+    ///
+    /// This function does not check for the user cancel signal, the caller is responsible for doing
+    /// that.
+    pub async fn execute_homing<SI, DI>(&mut self, step_iter: SI, delay_iter: DI)
+    where
+        SI: Iterator<Item = (Step, Step, Step)>,
+        DI: Iterator<Item = f32>,
+    {
+        // reset the abort state
+        ABORT_COND.store(false, Ordering::Release);
+        // reset any stale cancel signal
+        global::LIMIT_CANCEL.reset();
         // enable the driver
         self.drv.set_low();
         self.led.set_high();
         match select(
             self.execute_impl(step_iter, delay_iter),
-            global::CANCEL.wait(),
+            global::LIMIT_CANCEL.wait(),
         )
         .await
         {
-            Either::First(_) => defmt::info!("Movement complete"),
+            Either::First(_) => (),
             Either::Second(_) => {
                 ABORT_COND.store(true, Ordering::Release);
-                defmt::warn!("Movement cancelled");
             }
         }
         self.drv.set_high();

@@ -47,6 +47,9 @@ pub static TERMINAL: Channel<CriticalSectionRawMutex, Vec<u8>, 4> = Channel::new
 /// Movement cancel signal
 pub static CANCEL: Signal<CriticalSectionRawMutex, ()> = Signal::new();
 
+/// Movement cancel due to limit switch
+pub static LIMIT_CANCEL: Signal<CriticalSectionRawMutex, ()> = Signal::new();
+
 /// Movement execution queue
 pub static MOVEMENT: Channel<CriticalSectionRawMutex, Command, 8> = Channel::new();
 

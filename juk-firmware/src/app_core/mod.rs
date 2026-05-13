@@ -6,6 +6,7 @@ mod motor;
 use alloc::{format, vec::Vec};
 
 use embassy_executor::Spawner;
+use embassy_futures::select::{Either, select};
 use embassy_time::Timer;
 
 use juk_cmd::{
@@ -177,6 +178,24 @@ async fn run_homing(
     y: bool,
     z: bool,
 ) -> Result<(), MotionError> {
+    // clear any stale cancel signal
+    global::CANCEL.reset();
+
+    match select(run_homing_impl(ctl, x, y, z), global::CANCEL.wait()).await {
+        Either::First(res) => res,
+        Either::Second(_) => {
+            defmt::warn!("Homing aborted: cancelled by the user");
+            Ok(())
+        }
+    }
+}
+
+async fn run_homing_impl(
+    ctl: &mut motor::MotorControl<'_>,
+    x: bool,
+    y: bool,
+    z: bool,
+) -> Result<(), MotionError> {
     defmt::debug!(
         "Begin homing sequence, X: {=bool}, Y: {=bool}, Z: {=bool}",
         x,
@@ -189,11 +208,11 @@ async fn run_homing(
         // move back to the limit, 100% guarantee of hitting the limit switch
         let line = LineGenerator::new(-50000, 0, 0)?;
         let mut prof = FastTrap::new(defaults::ACCEL, defaults::VEL, 50000)?;
-        ctl.execute(line.step_iter(), prof.delays()).await;
+        ctl.execute_homing(line.step_iter(), prof.delays()).await;
         // move away
         let line = LineGenerator::new(200, 0, 0)?;
         let mut prof = FastTrap::new(defaults::ACCEL, defaults::VEL, 200)?;
-        ctl.execute(line.step_iter(), prof.delays()).await;
+        ctl.execute_homing(line.step_iter(), prof.delays()).await;
 
         // set the position to 0
         critical_section::with(|cs| global::POS.borrow_ref_mut(cs).0 = 0);
@@ -204,11 +223,11 @@ async fn run_homing(
         // move back to the limit, 100% guarantee of hitting the limit switch
         let line = LineGenerator::new(0, -50000, 0)?;
         let mut prof = FastTrap::new(defaults::ACCEL, defaults::VEL, 50000)?;
-        ctl.execute(line.step_iter(), prof.delays()).await;
+        ctl.execute_homing(line.step_iter(), prof.delays()).await;
         // move away
         let line = LineGenerator::new(0, 200, 0)?;
         let mut prof = FastTrap::new(defaults::ACCEL, defaults::VEL, 200)?;
-        ctl.execute(line.step_iter(), prof.delays()).await;
+        ctl.execute_homing(line.step_iter(), prof.delays()).await;
 
         // set the position to 0
         critical_section::with(|cs| global::POS.borrow_ref_mut(cs).1 = 0);
@@ -219,11 +238,11 @@ async fn run_homing(
         // move back to the limit, 100% guarantee of hitting the limit switch
         let line = LineGenerator::new(0, 0, -100000)?;
         let mut prof = FastTrap::new(defaults::ACCEL, defaults::VEL, 100000)?;
-        ctl.execute(line.step_iter(), prof.delays()).await;
+        ctl.execute_homing(line.step_iter(), prof.delays()).await;
         // move away
         let line = LineGenerator::new(0, 0, 1500)?;
         let mut prof = FastTrap::new(defaults::ACCEL, defaults::VEL, 1500)?;
-        ctl.execute(line.step_iter(), prof.delays()).await;
+        ctl.execute_homing(line.step_iter(), prof.delays()).await;
 
         // set the position to 0
         critical_section::with(|cs| global::POS.borrow_ref_mut(cs).2 = 0);

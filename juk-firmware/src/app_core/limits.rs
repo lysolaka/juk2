@@ -108,7 +108,7 @@ fn handle_limit(pin: &mut Option<Input>, flag: LimitStatus, status: &mut LimitSt
         // if pressed set the endstop flag
         Level::Low => {
             status.insert(flag);
-            global::CANCEL.signal(());
+            global::LIMIT_CANCEL.signal(());
         }
         // if not remove it
         Level::High => status.remove(flag),

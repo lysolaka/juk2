@@ -5,6 +5,8 @@ use core::mem;
 use const_format::concatcp;
 use embassy_futures::select::{Either, select};
 
+use juk_cmd::config::InterfaceMode;
+
 use crate::{
     Input,
     Terminal,
@@ -28,15 +30,6 @@ const BINARY_SWITCH: &str = concatcp!(
     INFO, "Switching to binary mode\r\n",
     INFO, "Press ", WHITE, "CTRL + Space", CLEAR, " once or twice to leave\r\n"
 );
-
-/// The operating mode of [`Interface`].
-///
-/// Used to track state of the [`Interface`] state machine.
-#[derive(defmt::Format, Clone, Copy, PartialEq, Eq)]
-pub enum InterfaceMode {
-    Binary,
-    Text,
-}
 
 /// The main REPL + binary interface struct.
 ///

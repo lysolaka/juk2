@@ -1,5 +1,7 @@
 //! Trapezoidal motion profiles
-use crate::{Error, prof::Profile};
+use juk_cmd::MotionError;
+
+use crate::Profile;
 
 /// Representation of the current motion phase
 #[derive(defmt::Format)]
@@ -38,15 +40,15 @@ impl FastTrap {
     /// # Errors
     ///
     /// It is an error if any argument is zero. See the source for details.
-    pub fn new(accel: f32, v_max: f32, steps: u32) -> Result<Self, Error> {
+    pub fn new(accel: f32, v_max: f32, steps: u32) -> Result<Self, MotionError> {
         if accel == 0.0 {
-            return Err(Error::ZeroAcceleration);
+            return Err(MotionError::ZeroAcceleration);
         }
         if v_max == 0.0 {
-            return Err(Error::ZeroVelocity);
+            return Err(MotionError::ZeroVelocity);
         }
         if steps == 0 {
-            return Err(Error::ZeroDisplacement);
+            return Err(MotionError::ZeroDisplacement);
         }
 
         let d_min = 1.0 / v_max;
@@ -150,15 +152,15 @@ impl Trap {
     /// # Errors
     ///
     /// If `accel` or `v_max`, or `steps` is 0, an error is returned.
-    pub fn new(accel: f32, v_init: f32, v_max: f32, v_end: f32, steps: u32) -> Result<Self, Error> {
+    pub fn new(accel: f32, v_init: f32, v_max: f32, v_end: f32, steps: u32) -> Result<Self, MotionError> {
         if accel == 0.0 {
-            return Err(Error::ZeroAcceleration);
+            return Err(MotionError::ZeroAcceleration);
         }
         if v_max == 0.0 {
-            return Err(Error::ZeroVelocity);
+            return Err(MotionError::ZeroVelocity);
         }
         if steps == 0 {
-            return Err(Error::ZeroDisplacement);
+            return Err(MotionError::ZeroDisplacement);
         }
 
         let total_steps = steps as f32;

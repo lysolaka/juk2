@@ -1,7 +1,35 @@
-//! Motion profiles and interpolators for JUK2
+//! Motion profiles
 #![no_std]
 
-pub mod interp;
-pub mod prof;
+mod flat;
+mod trap;
 
-pub use juk_cmd::MotionError as Error;
+pub use flat::Flat;
+pub use trap::{FastTrap, Trap};
+
+/// Trait for motion profiles allowing the use of a single interface.
+pub trait Profile: Sized {
+    /// Compute the delay until next step. Returns `None` when movement is finished.
+    fn next_delay(&mut self) -> Option<f32>;
+
+    /// Returns an iterator of delays values between steps.
+    fn delays(&mut self) -> Delays<'_, Self> {
+        Delays(self)
+    }
+}
+
+/// Inter-step delays iterator
+pub struct Delays<'a, P: Profile>(pub &'a mut P);
+
+impl<'a, P> Iterator for Delays<'a, P>
+where
+    P: Profile,
+{
+    type Item = f32;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.0.next_delay()
+    }
+}
+
+impl<'a, P> core::iter::FusedIterator for Delays<'a, P> where P: Profile {}

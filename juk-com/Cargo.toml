@@ -17,3 +17,5 @@ vte = { version = "0.15", default-features = false }
 const_format = "0.2"
 defmt = "1.0"
 embassy-futures = "0.1"
+
+juk-cmd = { path = "../juk-cmd", features = ["defmt"] }

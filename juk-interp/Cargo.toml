@@ -1,6 +1,6 @@
 [package]
-name = "juk-motion"
-description = "Motion profiles for JUK2"
+name = "juk-interp"
+description = "Motion interpolators for JUK2"
 version.workspace = true
 authors.workspace = true
 license.workspace = true
@@ -9,6 +9,8 @@ edition.workspace = true
 rust-version.workspace = true
 
 [dependencies]
+esp-hal = { version = "~1.0", default-features = false, features = ["defmt", "requires-unstable"] }
+
 defmt = "1.0"
 libm = "0.2"
 

@@ -1,5 +1,7 @@
 //! 3D line interpolator based on the Bresenham's algorithm
-use crate::{Error, interp::Step};
+use juk_cmd::MotionError;
+
+use crate::Step;
 
 #[derive(defmt::Format)]
 enum Axis {
@@ -27,9 +29,9 @@ pub struct LineGenerator {
 
 impl LineGenerator {
     /// Construct a [`LineGenerator`] from the final position relative to the current one (in steps).
-    pub const fn new(dx: i32, dy: i32, dz: i32) -> Result<Self, Error> {
+    pub const fn new(dx: i32, dy: i32, dz: i32) -> Result<Self, MotionError> {
         if dx == 0 && dy == 0 && dz == 0 {
-            Err(Error::ZeroDisplacement)
+            Err(MotionError::ZeroDisplacement)
         } else {
             Ok(LineGenerator::new_unchecked(dx, dy, dz))
         }

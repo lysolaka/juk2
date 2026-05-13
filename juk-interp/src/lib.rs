@@ -1,9 +1,8 @@
-//! Interpolators
+//! Interpolators for JUK2
+#![no_std]
 
 mod arc;
 mod line;
-
-pub use juk_cmd::ArcDir;
 
 pub use arc::ArcGenerator;
 pub use line::LineGenerator;
@@ -13,7 +12,7 @@ use esp_hal::gpio::Level;
 /// Describes whether to do a step, and if yes, what direction the step should be.
 ///
 /// The `repr` of this type is [`i32`] so it can be used to modify the step position variable directly.
-#[derive(Clone, Copy, PartialEq, Eq, defmt::Format)]
+#[derive(defmt::Format, Clone, Copy, PartialEq, Eq)]
 #[repr(i32)]
 pub enum Step {
     Positive = 1,

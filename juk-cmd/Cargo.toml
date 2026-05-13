@@ -1,6 +1,6 @@
 [package]
 name = "juk-cmd"
-description = "Command definitions and parsing for `juk-firmware`."
+description = "Command definitions and parsing for JUK2."
 version.workspace = true
 authors.workspace = true
 license.workspace = true
@@ -9,11 +9,15 @@ edition.workspace = true
 rust-version.workspace = true
 
 [dependencies]
-defmt = { version = "1.0", features = ["alloc"] }
 serde = { version = "1.0", default-features = false, features = ["alloc", "derive"] }
 thiserror = { version = "2.0", default-features = false }
 
-const_format = "0.2"
 libm = "0.2"
 
-juk-com = { path = "../juk-com" }
+defmt = { version = "1.0", features = ["alloc"], optional = true }
+
+[features]
+# Exclude code used exclusively by juk-firmware and friends
+export = []
+# Derive `defmt::Format` for types in this crate
+defmt = ["dep:defmt"]

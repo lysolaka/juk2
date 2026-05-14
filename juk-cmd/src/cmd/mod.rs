@@ -43,7 +43,7 @@ pub enum Command {
     Cancel,
     /// Set a configuration variable
     ConfigSet { kv: Vec<(String, String)> },
-    /// Read a configuration variable. In binary mode the serialized form of almost the entire
+    /// Read a configuration variable. In binary mode the serialized form of the entire
     /// config will be sent back.
     ConfigGet { key: String },
 }
@@ -55,7 +55,7 @@ pub enum Command {
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[derive(Deserialize, Serialize)]
 pub enum Response {
-    /// Useful variables from the system configuration
+    /// Part of the system configuration contained in [`SystemConfig`]
     Config(SystemConfig),
     /// The command was executed successfully
     Ok,

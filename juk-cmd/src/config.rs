@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 
 /// Configuration structure for the system.
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "export", derive(Debug))]
 #[derive(Deserialize, Serialize, Clone, Copy)]
 pub struct SystemConfig {
     pub accel: f32,
@@ -16,6 +17,7 @@ pub struct SystemConfig {
 
 /// Reference frame for movements.
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "export", derive(Debug))]
 #[derive(Deserialize, Serialize, Clone, Copy, PartialEq, Eq)]
 pub enum Frame {
     Absolute,
@@ -24,6 +26,7 @@ pub enum Frame {
 
 /// Unit of measurement for displacement.
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "export", derive(Debug))]
 #[derive(Deserialize, Serialize, Clone, Copy, PartialEq, Eq)]
 pub enum Unit {
     Steps,
@@ -34,6 +37,7 @@ pub enum Unit {
 ///
 /// Used to track state of the [`juk_com::Interface`] state machine.
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "export", derive(Debug))]
 #[derive(Deserialize, Serialize, Clone, Copy, PartialEq, Eq)]
 pub enum InterfaceMode {
     Binary,

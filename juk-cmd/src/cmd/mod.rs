@@ -17,6 +17,7 @@ use crate::{MotionError, config::SystemConfig};
 /// communication format. Binary messages should be serialized using serde and postcard with COBS
 /// encoding.
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "export", derive(Debug))]
 #[derive(Deserialize, Serialize)]
 pub enum Command {
     /// Linear movement
@@ -53,6 +54,7 @@ pub enum Command {
 /// This enum implements [`serde::Serialize`] and [`serde::Deserialize`] to be used in the binary
 /// mode. Binary messages should be serialized using serde and postcard with COBS encoding.
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "export", derive(Debug))]
 #[derive(Deserialize, Serialize)]
 pub enum Response {
     /// Part of the system configuration contained in [`SystemConfig`]

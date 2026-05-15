@@ -9,6 +9,7 @@ use crate::{
 
 /// Arc direction for the [`juk_interp::ArcGenerator`].
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "export", derive(Debug))]
 #[derive(Clone, Copy, PartialEq, Eq, Deserialize, Serialize)]
 pub enum ArcDir {
     /// Clockwise (negative angle)
@@ -19,6 +20,7 @@ pub enum ArcDir {
 
 /// Axis marker for displacement calculation.
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "export", derive(Debug))]
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub enum Axis {
     X,
@@ -28,6 +30,7 @@ pub enum Axis {
 
 /// Displacement unit, always in steps.
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "export", derive(Debug))]
 #[derive(Clone, Copy, Deserialize, Serialize)]
 pub enum Displacement {
     Relative(i32),

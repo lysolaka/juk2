@@ -3,7 +3,7 @@
 mod limits;
 mod motor;
 
-use alloc::{format, vec::Vec};
+use alloc::{format, vec};
 
 use embassy_executor::Spawner;
 use embassy_futures::select::{Either, select};
@@ -61,20 +61,21 @@ pub async fn main(
         let msg = match interface_mode {
             InterfaceMode::Binary => {
                 // in binary mode we send stuff regardless what happens
-                let mut buf = Vec::with_capacity(32);
-                if let Err(e) = res {
+                let ser = if let Err(e) = res {
                     defmt::error!("Movement error: {}", e);
-                    defmt::expect!(
-                        postcard::to_slice(&Response::Err(e), &mut buf),
-                        "Response serialization failed"
-                    );
+                    postcard::to_allocvec_cobs(&Response::Err(e))
                 } else {
-                    defmt::expect!(
-                        postcard::to_slice(&Response::Ok, &mut buf),
-                        "Response serialization failed"
-                    );
+                    postcard::to_allocvec_cobs(&Response::Ok)
+                };
+
+                match ser {
+                    Ok(buf) => buf,
+                    Err(e) => {
+                        defmt::error!("Response serialization failed: {}", e);
+                        // nuke the receiver
+                        vec![b'\0', b'\0']
+                    }
                 }
-                buf
             }
             InterfaceMode::Text => {
                 // in text mode we only send messages on errors

@@ -123,12 +123,15 @@ impl Interface {
                 }
                 Either::First(Err(e)) => return Err(e),
                 Either::Second(s) => {
-                    if self.mode == InterfaceMode::Text {
-                        terminal.write(b"\r").await?;
-                        terminal.clear_eol().await?;
-                        terminal.write(&s).await?;
-                        terminal.write(prompt.as_bytes()).await?;
-                        self.redraw_line(terminal).await?;
+                    match self.mode {
+                        InterfaceMode::Binary => terminal.write(&s).await?,
+                        InterfaceMode::Text => {
+                            terminal.write(b"\r").await?;
+                            terminal.clear_eol().await?;
+                            terminal.write(&s).await?;
+                            terminal.write(prompt.as_bytes()).await?;
+                            self.redraw_line(terminal).await?;
+                        }
                     }
                     terminal.flush().await?;
                 }

@@ -57,6 +57,26 @@ pub async fn main(
             c.mode
         };
 
+        // catch no-op errors and just skip these movements
+        let res = if let Err(MotionError::ZeroDisplacement) = res {
+            defmt::warn!(
+                "Movement error: {}, ignored the movement",
+                MotionError::ZeroDisplacement
+            );
+            if interface_mode == InterfaceMode::Text {
+                let msg = format!(
+                    "{}Cannot execute: {}\r\n",
+                    strings::ERROR,
+                    MotionError::ZeroDisplacement
+                )
+                .into_bytes();
+                global::TERMINAL.send(msg).await;
+            }
+            Ok(())
+        } else {
+            res
+        };
+
         // format the message to send back to the interface
         let msg = match interface_mode {
             InterfaceMode::Binary => {

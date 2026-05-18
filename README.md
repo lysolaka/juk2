@@ -14,7 +14,7 @@ The custom design can be found under the `juk-pcb` directory. It also has a sche
 
 The machine operates in Cartesian coordinates using four motors: one for X and Y axes each, and two for the Z axis. The X axis is realized as a moving table, the Y axis is being moved up and down by the Z axis. The X and Y assemblies operate using a belt pulley, the Z axis moves the Y axis assembly using trapezoidal screws from both ends of the axis (hence the need for two motors).
 
-*TODO:* add a nice photo of the machine
+![juk2frame](juk-pcb/frame.pic.jpg)
 
 # Software
 
